@@ -1,0 +1,11 @@
+﻿global using static CommonBasicLibraries.BasicDataSettingsAndProcesses.BasicDataFunctions;
+global using CommonBasicLibraries.BasicDataSettingsAndProcesses;
+global using Microsoft.Extensions.Configuration;
+global using CommonBasicLibraries.DatabaseHelpers.MiscClasses;
+global using ff1 = CommonBasicLibraries.AdvancedGeneralFunctionsAndProcesses.FileFunctions.FileFunctions;
+global using System.Data;
+global using CommonBasicLibraries.CollectionClasses;
+global using System.Data.Common;
+global using jj1 = CommonBasicLibraries.AdvancedGeneralFunctionsAndProcesses.JsonSerializers.SystemTextJsonStrings;
+global using CommonBasicLibraries.DatabaseHelpers.AbstractStaticInterfaces;
+global using CommonBasicLibraries.DatabaseHelpers.MiscInterfaces;
