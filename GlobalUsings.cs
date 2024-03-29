@@ -9,3 +9,5 @@ global using System.Data.Common;
 global using jj1 = CommonBasicLibraries.AdvancedGeneralFunctionsAndProcesses.JsonSerializers.SystemTextJsonStrings;
 global using CommonBasicLibraries.DatabaseHelpers.AbstractStaticInterfaces;
 global using CommonBasicLibraries.DatabaseHelpers.MiscInterfaces;
+global using AdoNetHelpersLibrary.ConnectionHelpers;
+global using AdoNetHelpersLibrary.ExecutionHelpers;
