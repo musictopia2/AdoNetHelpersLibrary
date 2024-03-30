@@ -1,4 +1,6 @@
-﻿namespace AdoNetHelpersLibrary.ConnectionHelpers;
+﻿using System.Diagnostics.Metrics;
+
+namespace AdoNetHelpersLibrary.ConnectionHelpers;
 public class BasicConnector : IConnector
 {
     #region Main Functions
@@ -224,24 +226,7 @@ public class BasicConnector : IConnector
     }
     #endregion
     #region Direct To Extensions For Getting
-    public BasicList<T> LoadData<T>(string sqlStatement, BasicList<DynamicParameters> parameters)
-    {
-        return LoadData<T>(sqlStatement, parameters, false);
-    }
-    public async Task<BasicList<T>> LoadDataAsync<T>(string sqlStatement, BasicList<DynamicParameters> parameters)
-    {
-        return await LoadDataAsync<T>(sqlStatement, parameters, false);
-    }
-    public void SaveData(string sqlStatement, BasicList<DynamicParameters> parameters)
-    {
-        SaveData(sqlStatement, parameters, false);
-    }
-    public async Task SaveDataAsync(string sqlStatement, BasicList<DynamicParameters> parameters)
-    {
-        using IDbConnection cons = GetConnection();
-        await SaveDataAsync(sqlStatement, parameters, false);
-    }
-    public BasicList<T> LoadData<T>(string sqlStatement, BasicList<DynamicParameters> parameters, bool isStoredProcedure)
+    public BasicList<T> LoadData<T>(string sqlStatement, BasicList<DynamicParameter> parameters, bool isStoredProcedure)
     {
         CommandType commandType = CommandType.Text;
         if (isStoredProcedure == true)
@@ -251,7 +236,19 @@ public class BasicConnector : IConnector
         CommandDefinition command = new(sqlStatement, parameters, commandType: commandType);
         return this.Query<T>(command);
     }
-    public async Task<BasicList<T>> LoadDataAsync<T>(string sqlStatement, BasicList<DynamicParameters> parameters, bool isStoredProcedure)
+    public BasicList<T> LoadData<T>(string sqlStatement, BasicList<DynamicParameter> parameters)
+    {
+        return LoadData<T>(sqlStatement, parameters, false);
+    }
+    public BasicList<T> LoadData<T>(string sqlStatement)
+    {
+        return LoadData<T>(sqlStatement, [], false);
+    }
+    public BasicList<T> LoadData<T>(string sqlStatement, bool isStoredProcedure)
+    {
+        return LoadData<T>(sqlStatement, [], isStoredProcedure);
+    }
+    public async Task<BasicList<T>> LoadDataAsync<T>(string sqlStatement, BasicList<DynamicParameter> parameters, bool isStoredProcedure)
     {
         using IDbConnection cons = GetConnection();
         CommandType commandType = CommandType.Text;
@@ -262,7 +259,28 @@ public class BasicConnector : IConnector
         CommandDefinition command = new(sqlStatement, parameters, commandType: commandType);
         return await this.QueryAsync<T>(command);
     }
-    public void SaveData(string sqlStatement, BasicList<DynamicParameters> parameters, bool isStoredProcedure)
+    public async Task<BasicList<T>> LoadDataAsync<T>(string sqlStatement, BasicList<DynamicParameter> parameters)
+    {
+        return await LoadDataAsync<T>(sqlStatement, parameters, false);
+    }
+    public async Task<BasicList<T>> LoadDataAsync<T>(string sqlStatement)
+    {
+        return await LoadDataAsync<T>(sqlStatement, [], false);
+    }
+    public async Task<BasicList<T>> LoadDataAsync<T>(string sqlStatement, bool isStoredProcedure)
+    {
+        return await LoadDataAsync<T>(sqlStatement, [], isStoredProcedure);
+    }
+    public void SaveData(string sqlStatement, BasicList<DynamicParameter> parameters)
+    {
+        SaveData(sqlStatement, parameters, false);
+    }
+    public async Task SaveDataAsync(string sqlStatement, BasicList<DynamicParameter> parameters)
+    {
+        using IDbConnection cons = GetConnection();
+        await SaveDataAsync(sqlStatement, parameters, false);
+    }
+    public void SaveData(string sqlStatement, BasicList<DynamicParameter> parameters, bool isStoredProcedure)
     {
         using IDbConnection cons = GetConnection();
         CommandType commandType = CommandType.Text;
@@ -273,7 +291,7 @@ public class BasicConnector : IConnector
         CommandDefinition command = new(sqlStatement, parameters, commandType: commandType);
         this.Execute(command);
     }
-    public async Task SaveDataAsync(string sqlStatement, BasicList<DynamicParameters> parameters, bool isStoredProcedure)
+    public async Task SaveDataAsync(string sqlStatement, BasicList<DynamicParameter> parameters, bool isStoredProcedure)
     {
         await Task.Run(() =>
         {

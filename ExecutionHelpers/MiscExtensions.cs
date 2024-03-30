@@ -1,7 +1,7 @@
 ﻿namespace AdoNetHelpersLibrary.ExecutionHelpers;
 internal static class MiscExtensions
 {
-    private static void SetDatabaseParameters(this IConnector custom, IDbCommand command, BasicList<DynamicParameters>? parameters)
+    private static void SetDatabaseParameters(this IConnector custom, IDbCommand command, BasicList<DynamicParameter>? parameters)
     {
         if (parameters is null)
         {
@@ -12,7 +12,16 @@ internal static class MiscExtensions
             DbParameter parameter = custom.GetConnector.GetParameter();
             parameter.ParameterName = item.ParameterName;
             parameter.DbType = item.DbType;
-            parameter.Value = item.Value;
+            parameter.Precision = item.Precision;
+            parameter.SourceColumnNullMapping = item.SourceColumnNullMapping;
+            if (item.Value is null)
+            {
+                parameter.Value = DBNull.Value;
+            }
+            else
+            {
+                parameter.Value = item.Value;
+            }
             command.Parameters.Add(parameter);
         }
     }

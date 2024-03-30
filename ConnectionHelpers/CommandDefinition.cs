@@ -1,5 +1,5 @@
 ﻿namespace AdoNetHelpersLibrary.ConnectionHelpers;
-public readonly struct CommandDefinition(string commandText, BasicList<DynamicParameters>? parameters = null, IDbTransaction? transaction = null, int? commandTimeout = null,
+public readonly struct CommandDefinition(string commandText, BasicList<DynamicParameter>? parameters = null, IDbTransaction? transaction = null, int? commandTimeout = null,
                              CommandType? commandType = null)
 {
     /// <summary>
@@ -10,7 +10,7 @@ public readonly struct CommandDefinition(string commandText, BasicList<DynamicPa
     /// <summary>
     /// The parameters associated with the command
     /// </summary>
-    public BasicList<DynamicParameters>? Parameters { get; } = parameters;
+    public BasicList<DynamicParameter>? Parameters { get; } = parameters;
 
     /// <summary>
     /// The active transaction for the command

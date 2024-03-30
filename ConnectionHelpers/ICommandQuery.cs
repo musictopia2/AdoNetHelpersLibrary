@@ -1,5 +1,5 @@
 ﻿namespace AdoNetHelpersLibrary.ConnectionHelpers;
-public interface ICustomQuery<T>
+public interface ICommandQuery<T>
 {
     BasicList<T> Query(IDbCommand command);
     Task<BasicList<T>> QueryAsync(IDbCommand command);

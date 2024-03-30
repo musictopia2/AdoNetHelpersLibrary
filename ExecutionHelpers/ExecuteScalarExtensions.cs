@@ -2,7 +2,7 @@
 internal static class ExecuteScalarExtensions
 {
     //if i somehow specialized stuff, rethink.
-    public static T ExecuteScalar<T>(this IConnector connector, string sql, BasicList<DynamicParameters>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
+    public static T ExecuteScalar<T>(this IConnector connector, string sql, BasicList<DynamicParameter>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
     {
         CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
         return connector.ExecuteScalar<T>(commandDefinition);
@@ -10,11 +10,17 @@ internal static class ExecuteScalarExtensions
     public static T ExecuteScalar<T>(this IConnector connector, CommandDefinition command)
     {
         using IDbConnection cons = connector.GetConnection();
+        cons.Open();
         using IDbCommand fins = connector.GetCommand(cons, command);
+        if (command.Transaction is not null)
+        {
+            fins.Transaction = command.Transaction;
+        }
         object? results = fins.ExecuteScalar();
+        cons.Close();
         return (T)results!;
     }
-    public static Task<T> ExecuteScalarAsync<T>(this IConnector connector, string sql, BasicList<DynamicParameters>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
+    public static Task<T> ExecuteScalarAsync<T>(this IConnector connector, string sql, BasicList<DynamicParameter>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
     {
         CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
         return connector.ExecuteScalarAsync<T>(commandDefinition);
