@@ -271,6 +271,14 @@ public class BasicConnector : IConnector
     {
         return await LoadDataAsync<T>(sqlStatement, [], isStoredProcedure);
     }
+    public void SaveData(string sqlStatement)
+    {
+        SaveData(sqlStatement, []);
+    }
+    public void SaveData(string sqlStatement, bool isStoredProcedure)
+    {
+        SaveData(sqlStatement, [], isStoredProcedure);
+    }
     public void SaveData(string sqlStatement, BasicList<DynamicParameter> parameters)
     {
         SaveData(sqlStatement, parameters, false);
@@ -298,5 +306,14 @@ public class BasicConnector : IConnector
             SaveData(sqlStatement, parameters, isStoredProcedure); //this is the best i can do for now.
         });
     }
+    public async Task SaveDataAsync(string sqlStatement)
+    {
+        await SaveDataAsync(sqlStatement, []);
+    }
+    public async Task SaveDataAsync(string sqlStatement, bool isStoredProcedure)
+    {
+        await SaveDataAsync(sqlStatement, [], isStoredProcedure);
+    }
+
     #endregion
 }
