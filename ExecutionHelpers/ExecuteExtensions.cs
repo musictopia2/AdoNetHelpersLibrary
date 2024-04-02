@@ -12,10 +12,6 @@ public static class ExecuteExtensions
     }
     public static void Execute(this ICaptureCommandParameter capture, CommandDefinition command)
     {
-        if (capture.CurrentConnection is null)
-        {
-            throw new CustomBasicException("No connection when executing");
-        }
         bool isClosed;
         isClosed = capture.CurrentConnection.State == ConnectionState.Closed;
         if (isClosed)

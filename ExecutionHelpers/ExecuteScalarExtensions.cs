@@ -15,10 +15,6 @@ internal static class ExecuteScalarExtensions
     public static T ExecuteScalar<T>(this ICaptureCommandParameter capture, CommandDefinition command)
         where T: IParsable<T>
     {
-        if (capture.CurrentConnection is null)
-        {
-            throw new CustomBasicException("No connection when ExecutingScalar");
-        }
         bool isClosed;
         isClosed = capture.CurrentConnection.State == ConnectionState.Closed;
         if (isClosed)

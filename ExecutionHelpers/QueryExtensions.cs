@@ -8,10 +8,6 @@ public static class QueryExtensions
     }
     public static BasicList<T> Query<T>(this ICaptureCommandParameter capture, CommandDefinition command)
     {
-        if (capture.CurrentConnection is null)
-        {
-            throw new CustomBasicException("No connection when doing query");
-        }
         var item = CommandQueryGlobalClass<T>.MasterContext ?? throw new CustomBasicException($"Nothing was registered for type {typeof(T)}.  Try creating a source generator and register it");
         bool isClosed;
         isClosed = capture.CurrentConnection.State == ConnectionState.Closed;
@@ -38,10 +34,6 @@ public static class QueryExtensions
     }
     public static async Task<BasicList<T>> QueryAsync<T>(this ICaptureCommandParameter capture, CommandDefinition command)
     {
-        if (capture.CurrentConnection is null)
-        {
-            throw new CustomBasicException("No connection when doing query async ");
-        }
         var item = CommandQueryGlobalClass<T>.MasterContext ?? throw new CustomBasicException($"Nothing was registered for type {typeof(T)}.  Try creating a source generator and register it");
         bool isClosed;
         isClosed = capture.CurrentConnection.State == ConnectionState.Closed;
