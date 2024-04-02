@@ -1,7 +1,6 @@
-﻿using System.Diagnostics.Metrics;
-
+﻿
 namespace AdoNetHelpersLibrary.ConnectionHelpers;
-public class BasicConnector : IConnector
+public class BasicConnector : IConnector, ICaptureCommandParameter
 {
     #region Main Functions
     private EnumDatabaseCategory _category;
@@ -22,6 +21,12 @@ public class BasicConnector : IConnector
         get => _connectionString;
         set => _connectionString = value;
     }
+    public IDbConnection? CurrentConnection { get; set; }
+    EnumDatabaseCategory ICaptureCommandParameter.Category
+    {
+        get => _category; set => _category = value;
+    }
+
     public static BasicConnector GetSQLiteTestHelper()
     {
         return new BasicConnector();
@@ -113,128 +118,237 @@ public class BasicConnector : IConnector
         Init(EnumDatabaseCategory.SQLite, key, proposedPath);
         GetConnector = this.PrivateConnector();
     }
+    internal void RunCustomConnection(Action action)
+    {
+        using IDbConnection cons = GetConnection();
+        CurrentConnection = cons;
+        CurrentConnection.Open();
+        action.Invoke();
+        CurrentConnection.Close();
+        CurrentConnection = null;
+    }
+    internal async Task RunCustomConnectionAsync(Func<Task> action)
+    {
+        using IDbConnection cons = GetConnection();
+        CurrentConnection = cons;
+        CurrentConnection.Open();
+        await action.Invoke();
+        CurrentConnection.Close();
+        CurrentConnection = null;
+    }
+
+    internal void RunCustomConnection(Action<IDbConnection> action)
+    {
+        using IDbConnection cons = GetConnection();
+        CurrentConnection = cons;
+        CurrentConnection.Open();
+        action.Invoke(cons);
+        CurrentConnection.Close();
+        CurrentConnection = null;
+    }
+    internal async Task RunCustomConnectionAsync(Func<IDbConnection, Task> action)
+    {
+        using IDbConnection cons = GetConnection();
+        CurrentConnection = cons;
+        CurrentConnection.Open();
+        await action.Invoke(cons);
+        CurrentConnection.Close();
+        CurrentConnection = null;
+    }
     #endregion
     #region Work Functions
-    public void DoWork(Action<IDbConnection> action)
+    public void DoWork(Action<ICaptureCommandParameter> action)
     {
-        using IDbConnection cons = GetConnection();
-        cons.Open();
-        action.Invoke(cons);
-        cons.Close();
+        RunCustomConnection(() =>
+        {
+            action.Invoke(this);
+        });
     }
-    public async Task DoWorkAsync(Func<IDbConnection, Task> action)
+    public async Task DoWorkAsync(Func<ICaptureCommandParameter, Task> action)
     {
-        using IDbConnection cons = GetConnection();
-        cons.Open();
-        await action.Invoke(cons);
-        cons.Close();
+        await RunCustomConnectionAsync(async () =>
+        {
+            await action.Invoke(this);
+        });
     }
-    public async Task DoBulkWorkAsync(Func<IDbConnection, IDbTransaction, Task> action,
+    public void DoBulkWork(Action<ICaptureCommandParameter, IDbTransaction> action, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
+    {
+        RunCustomConnection(cons =>
+        {
+            if (isolationLevel == IsolationLevel.Unspecified)
+            {
+                using IDbTransaction tran = cons.BeginTransaction();
+                action.Invoke(this, tran);
+            }
+            else
+            {
+                IDbTransaction tran = cons.BeginTransaction(isolationLevel);
+                action.Invoke(this, tran);
+            }
+        });
+    }
+    public async Task DoBulkWorkAsync(Func<ICaptureCommandParameter, IDbTransaction, Task> action,
         IsolationLevel isolationLevel = IsolationLevel.Unspecified)
     {
-        using IDbConnection cons = GetConnection();
-        cons.Open();
-        if (isolationLevel == IsolationLevel.Unspecified)
+        await RunCustomConnectionAsync(async cons =>
         {
-
-            using IDbTransaction tran = cons.BeginTransaction();
-            await action.Invoke(cons, tran);
-        }
-        else
-        {
-            IDbTransaction tran = cons.BeginTransaction(isolationLevel);
-            await action.Invoke(cons, tran);
-        }
-        cons.Close();
+            if (isolationLevel == IsolationLevel.Unspecified)
+            {
+                using IDbTransaction tran = cons.BeginTransaction();
+                await action.Invoke(this, tran);
+            }
+            else
+            {
+                IDbTransaction tran = cons.BeginTransaction(isolationLevel);
+                await action.Invoke(this, tran);
+            }
+        });
     }
-    public void DoBulkWork<E>(Action<IDbConnection, IDbTransaction, E> action,
+    public void DoBulkWork<E>(Action<ICaptureCommandParameter, IDbTransaction, E> action,
         BasicList<E> thisList, IsolationLevel isolationLevel = IsolationLevel.Unspecified,
-        Action<IDbConnection>? beforeWork = null, Action<IDbConnection>? afterWork = null)
+        Action<ICaptureCommandParameter>? beforeWork = null, Action<ICaptureCommandParameter>? afterWork = null)
     {
-        using IDbConnection cons = GetConnection();
-        cons.Open();
-        beforeWork?.Invoke(cons);
-        thisList.ForEach(items =>
+        RunCustomConnection(cons =>
+        {
+            beforeWork?.Invoke(this);
+            thisList.ForEach(item =>
+            {
+                if (isolationLevel == IsolationLevel.Unspecified)
+                {
+                    using IDbTransaction tran = cons.BeginTransaction();
+                    action.Invoke(this, tran, item);
+                }
+                else
+                {
+                    using IDbTransaction tran = cons.BeginTransaction(isolationLevel);
+                    action.Invoke(this, tran, item);
+                }
+            });
+            afterWork?.Invoke(this);
+        });
+    }
+    public void DoWork(Action<ICaptureCommandParameter, IDbTransaction> action, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
+    {
+        RunCustomConnection(cons =>
         {
             if (isolationLevel == IsolationLevel.Unspecified)
             {
                 using IDbTransaction tran = cons.BeginTransaction();
-                action.Invoke(cons, tran, items);
+                action.Invoke(this, tran);
             }
             else
             {
                 IDbTransaction tran = cons.BeginTransaction(isolationLevel);
-                action.Invoke(cons, tran, items);
+                action.Invoke(this, tran);
             }
         });
-        afterWork?.Invoke(cons);
-        cons.Close();
     }
-    public void DoWork(Action<IDbConnection, IDbTransaction> action, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
+    public async Task DoBulkWorkAsync<E>(Func<ICaptureCommandParameter, IDbTransaction, E, Task> action, BasicList<E> thisList, IsolationLevel isolationLevel = IsolationLevel.Unspecified,
+        Func<ICaptureCommandParameter, Task>? beforeWork = null, Func<ICaptureCommandParameter, Task>? afterWork = null)
     {
-        using IDbConnection cons = GetConnection();
-        cons.Open();
-        if (isolationLevel == IsolationLevel.Unspecified)
+        await RunCustomConnectionAsync(async cons =>
         {
-            using IDbTransaction tran = cons.BeginTransaction();
-            action.Invoke(cons, tran);
-        }
-        else
-        {
-            IDbTransaction tran = cons.BeginTransaction(isolationLevel);
-            action.Invoke(cons, tran);
-        }
-        cons.Close();
+            if (beforeWork is not null)
+            {
+                await beforeWork.Invoke(this);
+            }
+            await thisList.ForEachAsync(async item =>
+            {
+                if (isolationLevel == IsolationLevel.Unspecified)
+                {
+                    using IDbTransaction tran = cons.BeginTransaction();
+                    await action.Invoke(this, tran, item);
+                }
+                else
+                {
+                    using IDbTransaction tran = cons.BeginTransaction(isolationLevel);
+                    await action.Invoke(this, tran, item);
+                }
+            });
+            if (afterWork is not null)
+            {
+                await afterWork.Invoke(this);
+            }
+        });
     }
-    public async Task DoBulkWorkAsync<E>(Func<IDbConnection, IDbTransaction, E, Task> action, BasicList<E> thisList, IsolationLevel isolationLevel = IsolationLevel.Unspecified,
-        Action<IDbConnection>? beforeWork = null, Func<IDbConnection, Task>? afterWork = null)
+    public async Task DoWorkAsync(Func<ICaptureCommandParameter, IDbTransaction, Task> action, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
     {
-        using IDbConnection cons = GetConnection();
-        cons.Open();
-        beforeWork?.Invoke(cons);
-        await thisList.ForEachAsync(async items =>
+        await RunCustomConnectionAsync(async (cons) =>
         {
             if (isolationLevel == IsolationLevel.Unspecified)
             {
                 using IDbTransaction tran = cons.BeginTransaction();
-                await action.Invoke(cons, tran, items);
+                await action.Invoke(this, tran);
             }
             else
             {
                 IDbTransaction tran = cons.BeginTransaction(isolationLevel);
-                await action.Invoke(cons, tran, items);
+                await action.Invoke(this, tran);
             }
         });
-        afterWork?.Invoke(cons);
-        cons.Close();
     }
-    public async Task DoWorkAsync(Func<IDbConnection, IDbTransaction, Task> action, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
+    #endregion
+    #region Unique Functions
+    public long Insert<E>(E entity) where E : class, ISimpleDapperEntity
     {
-        using IDbConnection cons = GetConnection();
-        cons.Open();
-        if (isolationLevel == IsolationLevel.Unspecified)
+        long output = default;
+        RunCustomConnection(() =>
         {
-            using IDbTransaction tran = cons.BeginTransaction();
-            await action.Invoke(cons, tran);
-        }
-        else
+            output = this.InsertSingle(entity);
+        });
+        return output;
+    }
+    public async Task<long> InsertAsync<E>(E entity) where E : class, ISimpleDapperEntity
+    {
+        long output = default;
+        await RunCustomConnectionAsync(async () =>
         {
-            IDbTransaction tran = cons.BeginTransaction(isolationLevel);
-            await action.Invoke(cons, tran);
-        }
-        cons.Close();
+            output = await this.InsertSingleAsync(entity);
+        });
+        return output;
     }
     #endregion
     #region Direct To Extensions For Getting
+
+    public BasicList<E> GetDataList<E>()
+        where E: class, ISimpleDapperEntity
+    {
+        BasicList<E> output = [];
+        DoWork(capture =>
+        {
+            output = capture.Get<E>();
+        });
+        return output;
+    }
+
+    /// <summary>
+    /// this is when you just want to get all the data from the database.  most simple but no parameters this time.
+    /// </summary>
+    /// <typeparam name="E"></typeparam>
+    /// <returns></returns>
+    public async Task<BasicList<E>> GetDataListAsync<E>() where E : class, ISimpleDapperEntity //this should still work.
+    {
+        BasicList<E> output = [];
+        await DoWorkAsync(async capture =>
+        {
+            output = await capture.GetAsync<E>();
+        });
+        return output;
+    }
     public BasicList<T> LoadData<T>(string sqlStatement, BasicList<DynamicParameter> parameters, bool isStoredProcedure)
     {
-        CommandType commandType = CommandType.Text;
-        if (isStoredProcedure == true)
+        BasicList<T> output = [];
+        RunCustomConnection(() =>
         {
-            commandType = CommandType.StoredProcedure;
-        }
-        CommandDefinition command = new(sqlStatement, parameters, commandType: commandType);
-        return this.Query<T>(command);
+            CommandType commandType = CommandType.Text;
+            if (isStoredProcedure == true)
+            {
+                commandType = CommandType.StoredProcedure;
+            }
+            CommandDefinition command = new(sqlStatement, parameters, commandType: commandType);
+            output = this.Query<T>(command);
+        });
+        return output;
     }
     public BasicList<T> LoadData<T>(string sqlStatement, BasicList<DynamicParameter> parameters)
     {
@@ -250,14 +364,18 @@ public class BasicConnector : IConnector
     }
     public async Task<BasicList<T>> LoadDataAsync<T>(string sqlStatement, BasicList<DynamicParameter> parameters, bool isStoredProcedure)
     {
-        using IDbConnection cons = GetConnection();
-        CommandType commandType = CommandType.Text;
-        if (isStoredProcedure == true)
+        BasicList<T> output = [];
+        await RunCustomConnectionAsync(async () =>
         {
-            commandType = CommandType.StoredProcedure;
-        }
-        CommandDefinition command = new(sqlStatement, parameters, commandType: commandType);
-        return await this.QueryAsync<T>(command);
+            CommandType commandType = CommandType.Text;
+            if (isStoredProcedure == true)
+            {
+                commandType = CommandType.StoredProcedure;
+            }
+            CommandDefinition command = new(sqlStatement, parameters, commandType: commandType);
+            output = await this.QueryAsync<T>(command);
+        });
+        return output;
     }
     public async Task<BasicList<T>> LoadDataAsync<T>(string sqlStatement, BasicList<DynamicParameter> parameters)
     {
@@ -285,19 +403,20 @@ public class BasicConnector : IConnector
     }
     public async Task SaveDataAsync(string sqlStatement, BasicList<DynamicParameter> parameters)
     {
-        using IDbConnection cons = GetConnection();
         await SaveDataAsync(sqlStatement, parameters, false);
     }
     public void SaveData(string sqlStatement, BasicList<DynamicParameter> parameters, bool isStoredProcedure)
     {
-        using IDbConnection cons = GetConnection();
-        CommandType commandType = CommandType.Text;
-        if (isStoredProcedure == true)
+        RunCustomConnection(cons =>
         {
-            commandType = CommandType.StoredProcedure;
-        }
-        CommandDefinition command = new(sqlStatement, parameters, commandType: commandType);
-        this.Execute(command);
+            CommandType commandType = CommandType.Text;
+            if (isStoredProcedure == true)
+            {
+                commandType = CommandType.StoredProcedure;
+            }
+            CommandDefinition command = new(sqlStatement, parameters, commandType: commandType);
+            this.Execute(command);
+        });
     }
     public async Task SaveDataAsync(string sqlStatement, BasicList<DynamicParameter> parameters, bool isStoredProcedure)
     {
@@ -314,6 +433,15 @@ public class BasicConnector : IConnector
     {
         await SaveDataAsync(sqlStatement, [], isStoredProcedure);
     }
-
+    #endregion
+    #region Advanced Interface Functions
+    DbParameter ICaptureCommandParameter.GetParameter()
+    {
+        return GetConnector.GetParameter();
+    }
+    IDbCommand ICaptureCommandParameter.GetCommand()
+    {
+        return GetConnector.GetCommand();
+    }
     #endregion
 }

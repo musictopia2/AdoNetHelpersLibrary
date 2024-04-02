@@ -1,43 +1,55 @@
-﻿namespace AdoNetHelpersLibrary.ExecutionHelpers; 
-internal static class ExecuteExtensions
+﻿namespace AdoNetHelpersLibrary.ExecutionHelpers;
+public static class ExecuteExtensions
 {
-
-    //if i ever need the ability to have public access for the execute and executeasync (or even query),
-    //then will do.
-    public static int Execute(this IConnector connector, CompleteSqlData complete, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
+    public static int Execute(this ICaptureCommandParameter capture, CompleteSqlData complete, IDbTransaction? transaction, int? commandTimeout)
     {
-        return connector.Execute(complete.SQLStatement, complete.Parameters, transaction, commandTimeout, commandType);
+        return capture.Execute(complete.SQLStatement, complete.Parameters, transaction, commandTimeout, null);
     }
-    public static int Execute(this IConnector connector, string sql, BasicList<DynamicParameter>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
+    public static int Execute(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
     {
         CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
-        return connector.Execute(commandDefinition);
+        return capture.Execute(commandDefinition);
     }
-    public static int Execute(this IConnector connector, CommandDefinition command)
+    public static int Execute(this ICaptureCommandParameter capture, CommandDefinition command)
     {
-        using IDbConnection cons = connector.GetConnection();
-        cons.Open();
-        using IDbCommand fins = connector.GetCommand(cons, command);
+        if (capture.CurrentConnection is null)
+        {
+            throw new CustomBasicException("No connection when executing");
+        }
+        bool isClosed;
+        isClosed = capture.CurrentConnection.State == ConnectionState.Closed;
+        if (isClosed)
+        {
+            capture.CurrentConnection.Open();
+        }
+        using IDbCommand fins = capture.GetCommand();
         if (command.Transaction is not null)
         {
             fins.Transaction = command.Transaction;
         }
         int output = fins.ExecuteNonQuery();
         fins.ExecuteNonQuery();
-        cons.Close();
+        if (isClosed)
+        {
+            capture.CurrentConnection.Close();
+        }
         return output;
     }
-    public static async Task<int> ExecuteAsync(this IConnector connector, string sql, BasicList<DynamicParameter>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
+    public static Task<int> ExecuteAsync(this ICaptureCommandParameter capture, CompleteSqlData complete, IDbTransaction? transaction, int? commandTimeout)
+    {
+        return capture.ExecuteAsync(complete.SQLStatement, complete.Parameters, transaction, commandTimeout, null);
+    }
+    public static async Task<int> ExecuteAsync(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
     {
         CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
-        return await connector.ExecuteAsync(commandDefinition);
+        return await capture.ExecuteAsync(commandDefinition);
     }
-    public static async Task<int> ExecuteAsync(this IConnector connector, CommandDefinition command)
+    public static async Task<int> ExecuteAsync(this ICaptureCommandParameter capture, CommandDefinition command)
     {
         int output = 0;
         await Task.Run(() =>
         {
-            output = connector.Execute(command);
+            output = capture.Execute(command);
         });
         return output;
     }

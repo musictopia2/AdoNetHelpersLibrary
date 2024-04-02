@@ -1,4 +1,4 @@
-﻿namespace AdoNetHelpersLibrary.ConnectionHelpers;
+﻿namespace AdoNetHelpersLibrary.MapHelpers;
 //in the old version, was internal.  has to be public so source generators can use this.
 public class CompleteSqlData
 {

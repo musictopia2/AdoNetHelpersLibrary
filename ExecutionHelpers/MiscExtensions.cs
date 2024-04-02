@@ -1,7 +1,7 @@
 ﻿namespace AdoNetHelpersLibrary.ExecutionHelpers;
-internal static class MiscExtensions
+public static class MiscExtensions
 {
-    private static void SetDatabaseParameters(this IConnector custom, IDbCommand command, BasicList<DynamicParameter>? parameters)
+    private static void SetDatabaseParameters(this ICaptureCommandParameter capture, IDbCommand command, BasicList<DynamicParameter>? parameters)
     {
         if (parameters is null)
         {
@@ -9,7 +9,7 @@ internal static class MiscExtensions
         }
         foreach (var item in parameters)
         {
-            DbParameter parameter = custom.GetConnector.GetParameter();
+            DbParameter parameter = capture.GetParameter();
             parameter.ParameterName = item.ParameterName;
             parameter.DbType = item.DbType;
             parameter.Precision = item.Precision;
@@ -25,10 +25,10 @@ internal static class MiscExtensions
             command.Parameters.Add(parameter);
         }
     }
-    public static IDbCommand GetCommand(this IConnector custom, IDbConnection cnn, CommandDefinition command)
+    public static IDbCommand GetCommand(this ICaptureCommandParameter capture, CommandDefinition command)
     {
-        IDbCommand fins = custom.GetConnector.GetCommand();
-        fins.Connection = cnn;
+        IDbCommand fins = capture.GetCommand();
+        fins.Connection = capture.CurrentConnection;
         fins.CommandText = command.CommandText;
         if (command.CommandTimeout is not null)
         {
@@ -36,7 +36,7 @@ internal static class MiscExtensions
         }
         fins.CommandType = command.CommandType;
         fins.Transaction = command.Transaction;
-        SetDatabaseParameters(custom, fins, command.Parameters);
+        capture.SetDatabaseParameters(fins, command.Parameters);
         return fins;
     }
 }

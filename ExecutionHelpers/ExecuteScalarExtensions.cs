@@ -1,36 +1,54 @@
 ﻿namespace AdoNetHelpersLibrary.ExecutionHelpers;
 internal static class ExecuteScalarExtensions
 {
-    //if i somehow specialized stuff, rethink.
-    public static T ExecuteScalar<T>(this IConnector connector, string sql, BasicList<DynamicParameter>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
+    public static T ExecuteScalar<T>(this ICaptureCommandParameter capture, CompleteSqlData complete, IDbTransaction? transaction, int? commandTimeout)
+    {
+        return capture.ExecuteScalar<T>(complete.SQLStatement, complete.Parameters, transaction, commandTimeout, null);
+    }
+    public static T ExecuteScalar<T>(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
     {
         CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
-        return connector.ExecuteScalar<T>(commandDefinition);
+        return capture.ExecuteScalar<T>(commandDefinition);
     }
-    public static T ExecuteScalar<T>(this IConnector connector, CommandDefinition command)
+    public static T ExecuteScalar<T>(this ICaptureCommandParameter capture, CommandDefinition command)
     {
-        using IDbConnection cons = connector.GetConnection();
-        cons.Open();
-        using IDbCommand fins = connector.GetCommand(cons, command);
+        if (capture.CurrentConnection is null)
+        {
+            throw new CustomBasicException("No connection when ExecutingScalar");
+        }
+        bool isClosed;
+        isClosed = capture.CurrentConnection.State == ConnectionState.Closed;
+        if (isClosed)
+        {
+            capture.CurrentConnection.Open();
+        }
+        using IDbCommand fins = capture.GetCommand(command);
         if (command.Transaction is not null)
         {
             fins.Transaction = command.Transaction;
         }
         object? results = fins.ExecuteScalar();
-        cons.Close();
+        if (isClosed)
+        {
+            capture.CurrentConnection.Close();
+        }
         return (T)results!;
     }
-    public static Task<T> ExecuteScalarAsync<T>(this IConnector connector, string sql, BasicList<DynamicParameter>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
+    public static Task<T> ExecuteScalarAsync<T>(this ICaptureCommandParameter capture, CompleteSqlData complete, IDbTransaction? transaction, int? commandTimeout)
+    {
+        return capture.ExecuteScalarAsync<T>(complete.SQLStatement, complete.Parameters, transaction, commandTimeout, null);
+    }
+    public static Task<T> ExecuteScalarAsync<T>(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
     {
         CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
-        return connector.ExecuteScalarAsync<T>(commandDefinition);
+        return capture.ExecuteScalarAsync<T>(commandDefinition);
     }
-    public static async Task<T> ExecuteScalarAsync<T>(this IConnector connector, CommandDefinition command)
+    public static async Task<T> ExecuteScalarAsync<T>(this ICaptureCommandParameter capture, CommandDefinition command)
     {
         T? item = default;
         await Task.Run(() =>
         {
-            item = connector.ExecuteScalar<T>(command);  
+            item = capture.ExecuteScalar<T>(command);  
         });
         if (item is null)
         {
