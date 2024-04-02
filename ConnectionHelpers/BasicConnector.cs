@@ -308,8 +308,17 @@ public class BasicConnector : IConnector, ICaptureCommandParameter
         return output;
     }
     #endregion
-    #region Direct To Extensions For Getting
 
+    #region Direct To Extensions For Getting
+    public E Get<E>(int id) where E : class, ISimpleDapperEntity
+    {
+        E output = default!;
+        RunCustomConnection(() =>
+        {
+            output = this.Get<E>(id, null, null); //has to send the others to use extension so no never ending loops
+        });
+        return output;
+    }
     public BasicList<E> GetDataList<E>()
         where E: class, ISimpleDapperEntity
     {

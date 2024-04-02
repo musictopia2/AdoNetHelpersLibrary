@@ -2,6 +2,11 @@
 public static class GetSimple
 {
     #region Single Tables
+    public static E Get<E>(this ICaptureCommandParameter capture, int id, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
+    {
+        BasicList<E> results = capture.PrivateGetSingleItem<E>(id, thisTran, connectionTimeOut);
+        return results.Single();
+    }
     public static BasicList<E> Get<E>(this ICaptureCommandParameter capture, BasicList<SortInfo>? sortList = null, int howMany = 0, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
     {
         return capture.PrivateSimpleSelectAll<E>(sortList, howMany, thisTran, connectionTimeOut);
@@ -9,8 +14,6 @@ public static class GetSimple
     public async static Task<BasicList<E>> GetAsync<E>(this ICaptureCommandParameter capture, BasicList<SortInfo>? sortList = null, int howMany = 0, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
     {
         EnumDatabaseCategory category = capture.Category;
-
-        //EnumDatabaseCategory category = db.GetDatabaseCategory(conn);
         var (sqls, MapList) = GetSimpleSelectStatement<E>(category, howMany);
         if (sortList != null)
         {
@@ -19,9 +22,6 @@ public static class GetSimple
                 throw new CustomBasicException("Needs maps");
             }
             throw new CustomBasicException("Cannot handle sorting for now");
-            //StringBuilder thisStr = new(sqls);
-            //thisStr.Append(GetSortStatement(MapList, sortList, false));
-            //sqls = thisStr.ToString();
         }
         return await capture.QueryAsync<E>(sqls, null, thisTran, connectionTimeOut, CommandType.Text);
     }
@@ -41,6 +41,15 @@ public static class GetSimple
             //sqls = thisStr.ToString();
         }
         return capture.Query<E>(sqls, null, thisTran, connectionTimeOut, CommandType.Text);
+    }
+    private static BasicList<E> PrivateGetSingleItem<E>(this ICaptureCommandParameter capture, int id, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
+    {
+        StringBuilder builder = new();
+        EnumDatabaseCategory category = capture.Category;
+        var (sqls, _) = GetSimpleSelectStatement<E>(category);
+        builder.Append(sqls);
+        BasicList<DynamicParameter> parameters = GetDynamicIDData(ref builder, id, false);
+        return capture.Query<E>(builder.ToString(), parameters, thisTran, connectionTimeOut, CommandType.Text);
     }
     #endregion
 }
