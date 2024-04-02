@@ -2,15 +2,18 @@
 internal static class ExecuteScalarExtensions
 {
     public static T ExecuteScalar<T>(this ICaptureCommandParameter capture, CompleteSqlData complete, IDbTransaction? transaction, int? commandTimeout)
+        where T : IParsable<T>
     {
         return capture.ExecuteScalar<T>(complete.SQLStatement, complete.Parameters, transaction, commandTimeout, null);
     }
     public static T ExecuteScalar<T>(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
+        where T : IParsable<T>
     {
         CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
         return capture.ExecuteScalar<T>(commandDefinition);
     }
     public static T ExecuteScalar<T>(this ICaptureCommandParameter capture, CommandDefinition command)
+        where T: IParsable<T>
     {
         if (capture.CurrentConnection is null)
         {
@@ -32,18 +35,21 @@ internal static class ExecuteScalarExtensions
         {
             capture.CurrentConnection.Close();
         }
-        return (T)results!;
+        return T.Parse(results!.ToString()!, null);
     }
     public static Task<T> ExecuteScalarAsync<T>(this ICaptureCommandParameter capture, CompleteSqlData complete, IDbTransaction? transaction, int? commandTimeout)
+        where T : IParsable<T>
     {
         return capture.ExecuteScalarAsync<T>(complete.SQLStatement, complete.Parameters, transaction, commandTimeout, null);
     }
     public static Task<T> ExecuteScalarAsync<T>(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
+        where T : IParsable<T>
     {
         CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
         return capture.ExecuteScalarAsync<T>(commandDefinition);
     }
     public static async Task<T> ExecuteScalarAsync<T>(this ICaptureCommandParameter capture, CommandDefinition command)
+        where T : IParsable<T>
     {
         T? item = default;
         await Task.Run(() =>

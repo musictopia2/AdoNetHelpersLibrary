@@ -18,3 +18,6 @@ global using CommonBasicLibraries.AdvancedGeneralFunctionsAndProcesses.Misc;
 global using static AdoNetHelpersLibrary.SqlHelpers.SimpleStatementHelpers;
 global using static AdoNetHelpersLibrary.SqlHelpers.PopulateDynamics;
 global using AdoNetHelpersLibrary.SqlExtensions;
+global using static AdoNetHelpersLibrary.SqlHelpers.StatementFactoryUpdates;
+global using CommonBasicLibraries.DatabaseHelpers.Extensions;
+global using CommonBasicLibraries.AdvancedGeneralFunctionsAndProcesses.BasicExtensions;

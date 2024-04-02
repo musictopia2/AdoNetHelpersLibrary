@@ -51,15 +51,11 @@ internal class SimpleStatementHelpers
         }
         return thisStr.ToString();
     }
-
     public static (string sqls, BasicList<ColumnModel> MapList) GetSimpleSelectStatement<E>(EnumDatabaseCategory database, int howMany = 0) where E : class, ISimpleDapperEntity
     {
         string tableName;
         var map = TableMapGlobalClass<E>.GetMap();
         tableName = map.TableName;
-
-
-        //BasicList<DatabaseMapping> thisList = GetMappingList<E>(out string TableName);
         string thisStr = GetSimpleSelectStatement(map.Columns, tableName, database, howMany: howMany);
         return (thisStr, map.Columns);
     }
@@ -124,7 +120,12 @@ internal class SimpleStatementHelpers
         thisStr.Append(tableName);
         return thisStr.ToString();
     }
-
+    public static string GetDeleteStatement(string tableName)
+    {
+        StringBuilder thisStr = new("delete from ");
+        thisStr.Append(tableName);
+        return thisStr.ToString();
+    }
     public static string GetLimitSQLite(EnumDatabaseCategory database, int howMany)
     {
         if (database == EnumDatabaseCategory.SQLServer)

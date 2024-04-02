@@ -1,5 +1,4 @@
-﻿
-namespace AdoNetHelpersLibrary.ConnectionHelpers;
+﻿namespace AdoNetHelpersLibrary.ConnectionHelpers;
 public class BasicConnector : IConnector, ICaptureCommandParameter
 {
     #region Main Functions
@@ -289,19 +288,25 @@ public class BasicConnector : IConnector, ICaptureCommandParameter
     }
     #endregion
     #region Unique Functions
-
-    public long Insert<E>(E entity) where E : class, ISimpleDapperEntity
+    public void UpdateAll<E>(E thisEntity) where E : class, ISimpleDapperEntity
     {
-        long output = default;
+        RunCustomConnection(() =>
+        {
+            this.UpdateEntity(thisEntity, EnumUpdateCategory.All);
+        });
+    }
+    public int Insert<E>(E entity) where E : class, ISimpleDapperEntity
+    {
+        int output = default;
         RunCustomConnection(() =>
         {
             output = this.InsertSingle(entity);
         });
         return output;
     }
-    public async Task<long> InsertAsync<E>(E entity) where E : class, ISimpleDapperEntity
+    public async Task<int> InsertAsync<E>(E entity) where E : class, ISimpleDapperEntity
     {
-        long output = default;
+        int output = default;
         await RunCustomConnectionAsync(async () =>
         {
             output = await this.InsertSingleAsync(entity);
@@ -309,7 +314,22 @@ public class BasicConnector : IConnector, ICaptureCommandParameter
         return output;
     }
     #endregion
-
+    #region Direct To Extensions Except Get
+    public void DeleteOnly<E>(E thisEntity) where E : class, ISimpleDapperEntity
+    {
+        RunCustomConnection(() =>
+        {
+            this.Delete(thisEntity);
+        });
+    }
+    public void DeleteOnly<E>(int id) where E : class, ISimpleDapperEntity
+    {
+        RunCustomConnection(() =>
+        {
+            this.Delete<E>(id);
+        });
+    }
+    #endregion
     #region Direct To Extensions For Getting
     public async Task<E> GetAsync<E>(int id) where E: class, ISimpleDapperEntity
     {
