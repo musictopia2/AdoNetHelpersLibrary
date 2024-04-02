@@ -256,6 +256,13 @@ public class BasicConnector : IConnector
             capture.UpdateEntity(thisEntity, EnumUpdateCategory.All);
         });
     }
+    public void UpdateCommonOnly<E>(E thisEntity) where E : class, ISimpleDapperEntity
+    {
+        RunCustomConnection(capture =>
+        {
+            capture.UpdateEntity(thisEntity, EnumUpdateCategory.Common);
+        });
+    }
     public int Insert<E>(E entity) where E : class, ISimpleDapperEntity
     {
         int output = default;
