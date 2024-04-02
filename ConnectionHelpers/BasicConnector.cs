@@ -289,6 +289,7 @@ public class BasicConnector : IConnector, ICaptureCommandParameter
     }
     #endregion
     #region Unique Functions
+
     public long Insert<E>(E entity) where E : class, ISimpleDapperEntity
     {
         long output = default;
@@ -310,6 +311,15 @@ public class BasicConnector : IConnector, ICaptureCommandParameter
     #endregion
 
     #region Direct To Extensions For Getting
+    public async Task<E> GetAsync<E>(int id) where E: class, ISimpleDapperEntity
+    {
+        E output = default!;
+        await RunCustomConnectionAsync(async () =>
+        {
+            output = await this.GetAsync<E>(id, null, null);
+        });
+        return output;
+    }
     public E Get<E>(int id) where E : class, ISimpleDapperEntity
     {
         E output = default!;
