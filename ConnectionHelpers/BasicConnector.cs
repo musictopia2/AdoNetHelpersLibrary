@@ -1,8 +1,4 @@
-﻿
-using AdoNetHelpersLibrary.ExecutionHelpers;
-using AdoNetHelpersLibrary.SqlExtensions;
-
-namespace AdoNetHelpersLibrary.ConnectionHelpers;
+﻿namespace AdoNetHelpersLibrary.ConnectionHelpers;
 public class BasicConnector : IConnector
 {
     #region Main Functions
@@ -357,6 +353,8 @@ public class BasicConnector : IConnector
                 }
             }
             capture.InsertRange(insertList, tran);
+            tran.Commit(); //try to commit.
+            //Console.WriteLine("Check");
         }, isolationLevel);
     }
     #endregion
@@ -467,12 +465,12 @@ public class BasicConnector : IConnector
 
     public R GetSingleObject<E, R>(string property, BasicList<SortInfo> sortList, BasicList<ICondition>? conditions = null)
         where E : class, ISimpleDapperEntity
-        where R: IParsable<R>
+        where R : IParsable<R>
     {
         R output = default!;
         RunCustomConnection(capture =>
         {
-            output = capture.GetSingleObject<E, R>(property,  sortList, conditions);
+            output = capture.GetSingleObject<E, R>(property, sortList, conditions);
         });
         return output;
     }
@@ -561,7 +559,7 @@ public class BasicConnector : IConnector
     }
 
     public BasicList<E> GetDataList<E>()
-        where E: class, ISimpleDapperEntity
+        where E : class, ISimpleDapperEntity
     {
         BasicList<E> output = [];
         DoWork(capture =>
