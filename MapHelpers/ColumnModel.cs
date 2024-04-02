@@ -8,6 +8,7 @@ public class ColumnModel
     public string ObjectName { get; set; } = "";
     public object? Value { get; set; }
     public bool CommonForUpdating { get; set; }
+    public string Prefix { get; set; } = "";
     //public string ParameterName { get; set; } = "";
     public DbType ColumnType { get; set; } //this is needed.
 

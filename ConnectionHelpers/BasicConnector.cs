@@ -1,4 +1,8 @@
-﻿namespace AdoNetHelpersLibrary.ConnectionHelpers;
+﻿
+using AdoNetHelpersLibrary.ExecutionHelpers;
+using AdoNetHelpersLibrary.SqlExtensions;
+
+namespace AdoNetHelpersLibrary.ConnectionHelpers;
 public class BasicConnector : IConnector
 {
     #region Main Functions
@@ -249,6 +253,48 @@ public class BasicConnector : IConnector
     }
     #endregion
     #region Unique Functions
+    public async Task UpdateListOnlyAsync<E>(BasicList<E> updateList, EnumUpdateCategory category = EnumUpdateCategory.Common, IsolationLevel isolationLevel = IsolationLevel.Unspecified) where E : class, ISimpleDapperEntity
+    {
+        await DoBulkWorkAsync<E>(async (capture, tran, thisEntity) =>
+        {
+            await capture.UpdateEntityAsync(thisEntity, category: category, thisTran: tran);
+            tran.Commit();
+        }, updateList, isolationLevel);
+    }
+    public async Task UpdateListAutoOnlyAsync<E>(BasicList<E> updateList, IsolationLevel isolationLevel = IsolationLevel.Unspecified) where E : class, ISimpleDapperEntity, IUpdatableEntity
+    {
+        await UpdateListOnlyAsync(updateList, category: EnumUpdateCategory.Auto, isolationLevel);
+    }
+    public async Task UpdateListOnlyAsync<E>(BasicList<E> updateList, BasicList<UpdateFieldInfo> manuelList, IsolationLevel isolationLevel = IsolationLevel.Unspecified) where E : class, ISimpleDapperEntity
+    {
+        await DoBulkWorkAsync(async (capture, tran, thisEntity) =>
+        {
+            await capture.UpdateEntityAsync(thisEntity, manuelList, thisTran: tran);
+            tran.Commit();
+        }, updateList, isolationLevel);
+    }
+    public void UpdateCommonListOnly<E>(BasicList<E> updateList, IsolationLevel isolationLevel = IsolationLevel.Unspecified) where E : class, ISimpleDapperEntity
+    {
+        DoBulkWork((capture, tran, thisEntity) =>
+        {
+            capture.UpdateEntity(thisEntity, EnumUpdateCategory.Common, thisTran: tran);
+            tran.Commit();
+        }, updateList, isolationLevel);
+    }
+    public async Task UpdateCommonOnlyAsync<E>(E thisEntity) where E : class, ISimpleDapperEntity
+    {
+        await RunCustomConnectionAsync(async capture =>
+        {
+            await capture.UpdateEntityAsync(thisEntity, EnumUpdateCategory.Common);
+        });
+    }
+    public async Task UpdateAllAsync<E>(E thisEntity) where E : class, ISimpleDapperEntity
+    {
+        await RunCustomConnectionAsync(async capture =>
+        {
+            await capture.UpdateEntityAsync(thisEntity, EnumUpdateCategory.All);
+        });
+    }
     public void UpdateAll<E>(E thisEntity) where E : class, ISimpleDapperEntity
     {
         RunCustomConnection(capture =>
@@ -263,14 +309,22 @@ public class BasicConnector : IConnector
             capture.UpdateEntity(thisEntity, EnumUpdateCategory.Common);
         });
     }
-    public int Insert<E>(E entity) where E : class, ISimpleDapperEntity
+    public async Task InsertRangeAsync<E>(BasicList<E> insertList, IsolationLevel isolationLevel = IsolationLevel.Unspecified, bool isStarterData = false, Action? recordsExisted = null) where E : class, ISimpleDapperEntity
     {
-        int output = default;
-        RunCustomConnection(capture =>
+        await DoWorkAsync(async (capture, tran) =>
         {
-            output = capture.InsertSingle(entity);
-        });
-        return output;
+            if (isStarterData)
+            {
+                int count = capture.Count<E>(tran);
+                if (count > 0)
+                {
+                    recordsExisted?.Invoke();
+                    return;
+                }
+            }
+            await capture.InsertRangeAsync(insertList, tran);
+            tran.Commit();
+        }, isolationLevel);
     }
     public async Task<int> InsertAsync<E>(E entity) where E : class, ISimpleDapperEntity
     {
@@ -281,13 +335,97 @@ public class BasicConnector : IConnector
         });
         return output;
     }
+    public int Insert<E>(E entity) where E : class, ISimpleDapperEntity
+    {
+        int output = default;
+        RunCustomConnection(capture =>
+        {
+            output = capture.InsertSingle(entity);
+        });
+        return output;
+    }
+    public void InsertRange<E>(BasicList<E> insertList, IsolationLevel isolationLevel = IsolationLevel.Unspecified, bool isStarterData = false) where E : class, ISimpleDapperEntity
+    {
+        DoWork((capture, tran) =>
+        {
+            if (isStarterData)
+            {
+                int count = capture.Count<E>(tran);
+                if (count > 0)
+                {
+                    return;
+                }
+            }
+            capture.InsertRange(insertList, tran);
+        }, isolationLevel);
+    }
     #endregion
     #region Direct To Extensions Except Get
+    public async Task AddListOnlyAsync<E>(BasicList<E> addList, IsolationLevel isolationLevel = IsolationLevel.Unspecified) where E : class, ISimpleDapperEntity
+    {
+        await RunCustomConnectionAsync(async capture =>
+        {
+            if (isolationLevel == IsolationLevel.Unspecified)
+            {
+                using IDbTransaction tran = capture.CurrentConnection.BeginTransaction();
+                await capture.InsertRangeAsync(addList, tran);
+                tran.Commit();
+            }
+            else
+            {
+                using IDbTransaction tran = capture.CurrentConnection.BeginTransaction(isolationLevel);
+                await capture.InsertRangeAsync(addList, tran);
+                tran.Commit();
+            }
+        });
+    }
+    public async Task AddEntityAsync<E>(E thisEntity) where E : class, ISimpleDapperEntity
+    {
+        await RunCustomConnectionAsync(async capture =>
+        {
+            thisEntity.ID = await capture.InsertSingleAsync(thisEntity);
+        });
+    }
+    public void AddEntity<E>(E thisEntity) where E : class, ISimpleDapperEntity
+    {
+        RunCustomConnection(capture =>
+        {
+            thisEntity.ID = capture.InsertSingle(thisEntity);
+        });
+    }
     public void DeleteOnly<E>(E thisEntity) where E : class, ISimpleDapperEntity
     {
         RunCustomConnection(capture =>
         {
             capture.Delete(thisEntity);
+        });
+    }
+    public async Task DeleteOnlyAsync<E>(E thisEntity) where E : class, ISimpleDapperEntity
+    {
+        await RunCustomConnectionAsync(async capture =>
+        {
+            await capture.DeleteAsync(thisEntity);
+        });
+    }
+    public void DeleteOnly<E>(BasicList<ICondition> conditions) where E : class, ISimpleDapperEntity
+    {
+        RunCustomConnection(capture =>
+        {
+            capture.Delete<E>(conditions);
+        });
+    }
+    public async Task DeleteOnlyAsync<E>(BasicList<ICondition> conditions) where E : class, ISimpleDapperEntity
+    {
+        await RunCustomConnectionAsync(async capture =>
+        {
+            await capture.DeleteAsync<E>(conditions);
+        });
+    }
+    public async Task DeleteOnlyAsync<E>(int id) where E : class, ISimpleDapperEntity
+    {
+        await RunCustomConnectionAsync(async capture =>
+        {
+            await capture.DeleteAsync<E>(id);
         });
     }
     public void DeleteOnly<E>(int id) where E : class, ISimpleDapperEntity
@@ -297,14 +435,73 @@ public class BasicConnector : IConnector
             capture.Delete<E>(id);
         });
     }
+    public async Task ExecuteAsync(string sqls)
+    {
+        await DoWorkAsync(async capture =>
+        {
+            await capture.ExecuteAsync(sqls, null, null, null, null);
+        });
+    }
+    public async Task ExecuteAsync(BasicList<string> sqlList, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
+    {
+        await DoWorkAsync(async (capture, trans) =>
+        {
+            await sqlList.ForEachAsync(async items =>
+            {
+                await capture.ExecuteAsync(items, null, trans, null, CommandType.Text);
+            });
+            trans.Commit();
+        }, isolationLevel);
+    }
+    public bool Exists<E>(BasicList<ICondition> conditions) where E : class, ISimpleDapperEntity
+    {
+        bool rets = false;
+        DoWork(capture =>
+        {
+            rets = capture.Exists<E>(conditions);
+        });
+        return rets;
+    }
     #endregion
     #region Direct To Extensions For Getting
-    public async Task<E> GetAsync<E>(int id) where E: class, ISimpleDapperEntity
+
+    public R GetSingleObject<E, R>(string property, BasicList<SortInfo> sortList, BasicList<ICondition>? conditions = null)
+        where E : class, ISimpleDapperEntity
+        where R: IParsable<R>
     {
-        E output = default!;
+        R output = default!;
+        RunCustomConnection(capture =>
+        {
+            output = capture.GetSingleObject<E, R>(property,  sortList, conditions);
+        });
+        return output;
+    }
+    public async Task<R?> GetSingleObjectAsync<E, R>(string property, BasicList<SortInfo> sortList, BasicList<ICondition>? conditions = null)
+        where E : class, ISimpleDapperEntity
+        where R : IParsable<R>
+    {
+        R? output = default!;
         await RunCustomConnectionAsync(async capture =>
         {
-            output = await capture.GetAsync<E>(id);
+            output = await capture.GetSingleObjectAsync<E, R>(property, sortList, conditions);
+        });
+        return output;
+    }
+    public BasicList<R> GetObjectList<E, R>(string property, BasicList<ICondition>? conditions = null, BasicList<SortInfo>? sortList = null, int howMany = 0) where E : class, ISimpleDapperEntity
+    {
+        BasicList<R> output = [];
+        RunCustomConnection(capture =>
+        {
+            output = capture.GetObjectList<E, R>(property, conditions, sortList, howMany);
+        });
+        return output;
+    }
+    public async Task<BasicList<R>> GetObjectListAsync<E, R>(string property, BasicList<ICondition>? conditions = null, BasicList<SortInfo>? sortList = null, int howMany = 0) where E : class, ISimpleDapperEntity
+    {
+        BasicList<R> output = [];
+        await RunCustomConnectionAsync(async capture =>
+        {
+            output = await capture.GetObjectListAsync<E, R>(property, conditions, sortList, howMany);
         });
         return output;
     }
@@ -317,6 +514,52 @@ public class BasicConnector : IConnector
         });
         return output;
     }
+    public BasicList<E> Get<E>(BasicList<SortInfo>? sortList = null, int howMany = 0) where E : class, ISimpleDapperEntity
+    {
+        BasicList<E> output = [];
+        RunCustomConnection(capture =>
+        {
+            output = capture.Get<E>(sortList, howMany);
+        });
+        return output;
+    }
+    public async Task<E> GetAsync<E>(int id) where E : class, ISimpleDapperEntity
+    {
+        E output = default!;
+        await RunCustomConnectionAsync(async capture =>
+        {
+            output = await capture.GetAsync<E>(id);
+        });
+        return output;
+    }
+    public async Task<IEnumerable<E>> GetAsync<E>(BasicList<SortInfo>? sortList = null, int howMany = 0) where E : class, ISimpleDapperEntity
+    {
+        BasicList<E> output = [];
+        await RunCustomConnectionAsync(async capture =>
+        {
+            output = await capture.GetAsync<E>(sortList, howMany);
+        });
+        return output;
+    }
+    public BasicList<E> Get<E>(BasicList<ICondition> conditions, BasicList<SortInfo>? sortList = null, int howMany = 0) where E : class, ISimpleDapperEntity
+    {
+        BasicList<E> output = [];
+        RunCustomConnection(capture =>
+        {
+            output = capture.Get<E>(conditions, sortList, howMany);
+        });
+        return output;
+    }
+    public async Task<BasicList<E>> GetAsync<E>(BasicList<ICondition> conditions, BasicList<SortInfo>? sortList = null, int howMany = 0) where E : class, ISimpleDapperEntity
+    {
+        BasicList<E> output = [];
+        await RunCustomConnectionAsync(async capture =>
+        {
+            output = await capture.GetAsync<E>(conditions, sortList, howMany);
+        });
+        return output;
+    }
+
     public BasicList<E> GetDataList<E>()
         where E: class, ISimpleDapperEntity
     {

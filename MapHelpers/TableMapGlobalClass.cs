@@ -19,6 +19,14 @@ public static class TableMapGlobalClass<E>
         }
         return MasterContext.IsAutoIncremented;
     }
+    internal static string TableName()
+    {
+        if (MasterContext is null)
+        {
+            throw new CustomBasicException($"No map was created for table {typeof(E)}.  Try creating a source generator");
+        }
+        return MasterContext.TableName;
+    }
     internal static SourceGeneratedMap GetMap(bool beingJoined = false)
     {
         if (MasterContext is null)

@@ -2,6 +2,7 @@
 public static class GetSimple
 {
     #region Single Tables
+    
     public static E Get<E>(this ICaptureCommandParameter capture, int id, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
     {
         BasicList<E> results = capture.PrivateGetSingleItem<E>(id, thisTran, connectionTimeOut);

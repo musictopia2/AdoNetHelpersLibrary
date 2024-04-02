@@ -137,5 +137,43 @@ internal class SimpleStatementHelpers
             return "";
         }
         return $"Limit {howMany}";
-    }   
+    }
+    public static string GetSortStatement<E>(BasicList<ColumnModel> mapList, BasicList<SortInfo>? sortList, bool isJoined)
+        where E: class, ISimpleDapperEntity
+    {
+        if (sortList == null)
+        {
+            return "";
+        }
+        if (sortList.Count == 0)
+        {
+            throw new CustomBasicException("If you are not sending nothing. you must have at least one condition");
+        }
+        StringBuilder thisStr = new();
+        thisStr.Append(" order by ");
+        string extras;
+        StrCat cats = new();
+        sortList.ForEach(items =>
+        {
+            ColumnModel thisMap = TableMapGlobalClass<E>.FindMappingForProperty(items, mapList);
+            if (items.OrderBy == SortInfo.EnumOrderBy.Descending)
+            {
+                extras = " desc";
+            }
+            else
+            {
+                extras = "";
+            }
+            if (isJoined == false)
+            {
+                cats.AddToString($"{thisMap.ColumnName}{extras}", ", ");
+            }
+            else
+            {
+                cats.AddToString($"{thisMap.Prefix}.{thisMap.ColumnName}{extras}", ", ");
+            }
+        });
+        thisStr.Append(cats.GetInfo());
+        return thisStr.ToString();
+    }
 }
