@@ -31,7 +31,7 @@ public static class CountAndExist
         CompleteSqlData thisData = new();
         thisData.SQLStatement = sqls;
         PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
-        return capture.ExecuteScalar<bool>(sqls, thisData.Parameters, thisTran, connectionTimeOut, CommandType.Text);
+        return capture.Exists(thisData, thisTran, connectionTimeOut);
     }
     public static bool Exists<E>(this ICaptureCommandParameter capture, int id, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
     {

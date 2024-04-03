@@ -31,6 +31,9 @@ internal static class ExecuteScalarExtensions
         {
             capture.CurrentConnection.Close();
         }
+        //can be questionable with bool.
+        //may be forced to do something else for scalar for some situations (?)
+
         return T.Parse(results!.ToString()!, null);
     }
     public static Task<T> ExecuteScalarAsync<T>(this ICaptureCommandParameter capture, CompleteSqlData complete, IDbTransaction? transaction, int? commandTimeout)

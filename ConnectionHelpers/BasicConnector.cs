@@ -433,6 +433,13 @@ public class BasicConnector : IConnector
             capture.Delete<E>(id);
         });
     }
+    public void Execute(string sqls)
+    {
+        DoWork(capture =>
+        {
+            capture.Execute(sqls, null, null, null, null);
+        });
+    }
     public async Task ExecuteAsync(string sqls)
     {
         await DoWorkAsync(async capture =>
@@ -451,6 +458,27 @@ public class BasicConnector : IConnector
             trans.Commit();
         }, isolationLevel);
     }
+    public void Execute(BasicList<string> sqlList, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
+    {
+        DoWork((capture, trans) =>
+        {
+            sqlList.ForEach(items =>
+            {
+                capture.Execute(items, null, trans, null, CommandType.Text);
+            });
+            trans.Commit();
+        }, isolationLevel);
+    }
+    public bool Exists<E>(int id) where E : class, ISimpleDapperEntity
+    {
+        bool rets = false;
+        DoWork(capture =>
+        {
+            var list = StartConditionWithID(id);
+            rets = capture.Exists<E>(list);
+        });
+        return rets;
+    }
     public bool Exists<E>(BasicList<ICondition> conditions) where E : class, ISimpleDapperEntity
     {
         bool rets = false;
@@ -462,7 +490,19 @@ public class BasicConnector : IConnector
     }
     #endregion
     #region Direct To Extensions For Getting
+    public R GetSingleObject<E, R>(string property, int id)
+        where E : class, ISimpleDapperEntity
+        where R : IParsable<R>
+    {
+        R output = default!;
+        RunCustomConnection(capture =>
+        {
+            var conditions = StartConditionWithID(id);
 
+            output = capture.GetSingleObject<E, R>(property, [], conditions);
+        });
+        return output;
+    }
     public R GetSingleObject<E, R>(string property, BasicList<SortInfo> sortList, BasicList<ICondition>? conditions = null)
         where E : class, ISimpleDapperEntity
         where R : IParsable<R>

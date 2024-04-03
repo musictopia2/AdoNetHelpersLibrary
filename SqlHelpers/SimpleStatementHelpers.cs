@@ -141,14 +141,14 @@ internal class SimpleStatementHelpers
     public static string GetSortStatement<E>(BasicList<ColumnModel> mapList, BasicList<SortInfo>? sortList, bool isJoined)
         where E: class, ISimpleDapperEntity
     {
-        if (sortList == null)
+        if (sortList == null || sortList.Count == 0)
         {
             return "";
         }
-        if (sortList.Count == 0)
-        {
-            throw new CustomBasicException("If you are not sending nothing. you must have at least one condition");
-        }
+        //if (sortList.Count == 0)
+        //{
+        //    throw new CustomBasicException("If you are not sending nothing. you must have at least one condition");
+        //}
         StringBuilder thisStr = new();
         thisStr.Append(" order by ");
         string extras;
