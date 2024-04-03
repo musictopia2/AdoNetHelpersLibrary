@@ -19,7 +19,7 @@ public static class GetOneItem
         {
             PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
         }
-        return capture.ExecuteScalar<R>(thisData, thisTran, connectionTimeOut)!;
+        return capture.ExecuteScalar<E, R>(thisData, thisTran, connectionTimeOut)!;
     }
     public static async Task<R?> GetSingleObjectAsync<E, R>(this ICaptureCommandParameter capture, string property, BasicList<SortInfo> sortList, BasicList<ICondition>? conditions = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, ISimpleDapperEntity
@@ -34,7 +34,7 @@ public static class GetOneItem
         {
             PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
         }
-        return await capture.ExecuteScalarAsync<R>(thisData, thisTran!, connectionTimeOut);
+        return await capture.ExecuteScalarAsync<E, R>(thisData, thisTran!, connectionTimeOut);
     }
     public static BasicList<R> GetObjectList<E, R>(this ICaptureCommandParameter capture, string property, BasicList<ICondition>? conditions = null, BasicList<SortInfo>? sortList = null, int howMany = 0, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, ISimpleDapperEntity
@@ -48,9 +48,7 @@ public static class GetOneItem
         {
             PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
         }
-
-        //this may be iffy.
-        return capture.Query<R>(thisData.SQLStatement, thisData.Parameters, thisTran, commandTimeout: connectionTimeOut, CommandType.Text);
+        return capture.Query<E, R>(thisData.SQLStatement, thisData.Parameters, thisTran, connectionTimeOut, CommandType.Text);
     }
     public static async Task<BasicList<R>> GetObjectListAsync<E, R>(this ICaptureCommandParameter capture, string property, BasicList<ICondition>? Conditions = null, BasicList<SortInfo>? sortList = null, int howMany = 0, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
     {
@@ -63,6 +61,6 @@ public static class GetOneItem
         {
             PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
         }
-        return await capture.QueryAsync<R>(thisData.SQLStatement, thisData.Parameters, thisTran, commandTimeout: connectionTimeOut, CommandType.Text);
+        return await capture.QueryAsync<E, R>(thisData.SQLStatement, thisData.Parameters, thisTran, commandTimeout: connectionTimeOut, CommandType.Text);
     }
 }

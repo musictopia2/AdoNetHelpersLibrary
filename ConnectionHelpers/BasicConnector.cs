@@ -623,9 +623,10 @@ public class BasicConnector : IConnector
         });
         return output;
     }
-    public BasicList<T> LoadData<T>(string sqlStatement, BasicList<DynamicParameter> parameters, bool isStoredProcedure)
+    public BasicList<E> LoadData<E>(string sqlStatement, BasicList<DynamicParameter> parameters, bool isStoredProcedure)
+        where E : class
     {
-        BasicList<T> output = [];
+        BasicList<E> output = [];
         RunCustomConnection(capture =>
         {
             CommandType commandType = CommandType.Text;
@@ -634,25 +635,29 @@ public class BasicConnector : IConnector
                 commandType = CommandType.StoredProcedure;
             }
             CommandDefinition command = new(sqlStatement, parameters, commandType: commandType);
-            output = capture.Query<T>(command);
+            output = capture.Query<E>(command);
         });
         return output;
     }
-    public BasicList<T> LoadData<T>(string sqlStatement, BasicList<DynamicParameter> parameters)
+    public BasicList<E> LoadData<E>(string sqlStatement, BasicList<DynamicParameter> parameters)
+        where E : class
     {
-        return LoadData<T>(sqlStatement, parameters, false);
+        return LoadData<E>(sqlStatement, parameters, false);
     }
-    public BasicList<T> LoadData<T>(string sqlStatement)
+    public BasicList<E> LoadData<E>(string sqlStatement)
+        where E : class
     {
-        return LoadData<T>(sqlStatement, [], false);
+        return LoadData<E>(sqlStatement, [], false);
     }
-    public BasicList<T> LoadData<T>(string sqlStatement, bool isStoredProcedure)
+    public BasicList<E> LoadData<E>(string sqlStatement, bool isStoredProcedure)
+        where E : class
     {
-        return LoadData<T>(sqlStatement, [], isStoredProcedure);
+        return LoadData<E>(sqlStatement, [], isStoredProcedure);
     }
-    public async Task<BasicList<T>> LoadDataAsync<T>(string sqlStatement, BasicList<DynamicParameter> parameters, bool isStoredProcedure)
+    public async Task<BasicList<E>> LoadDataAsync<E>(string sqlStatement, BasicList<DynamicParameter> parameters, bool isStoredProcedure)
+        where E : class
     {
-        BasicList<T> output = [];
+        BasicList<E> output = [];
         await RunCustomConnectionAsync(async capture =>
         {
             CommandType commandType = CommandType.Text;
@@ -661,21 +666,24 @@ public class BasicConnector : IConnector
                 commandType = CommandType.StoredProcedure;
             }
             CommandDefinition command = new(sqlStatement, parameters, commandType: commandType);
-            output = await capture.QueryAsync<T>(command);
+            output = await capture.QueryAsync<E>(command);
         });
         return output;
     }
-    public async Task<BasicList<T>> LoadDataAsync<T>(string sqlStatement, BasicList<DynamicParameter> parameters)
+    public async Task<BasicList<E>> LoadDataAsync<E>(string sqlStatement, BasicList<DynamicParameter> parameters)
+        where E : class
     {
-        return await LoadDataAsync<T>(sqlStatement, parameters, false);
+        return await LoadDataAsync<E>(sqlStatement, parameters, false);
     }
-    public async Task<BasicList<T>> LoadDataAsync<T>(string sqlStatement)
+    public async Task<BasicList<E>> LoadDataAsync<E>(string sqlStatement)
+        where E : class
     {
-        return await LoadDataAsync<T>(sqlStatement, [], false);
+        return await LoadDataAsync<E>(sqlStatement, [], false);
     }
-    public async Task<BasicList<T>> LoadDataAsync<T>(string sqlStatement, bool isStoredProcedure)
+    public async Task<BasicList<E>> LoadDataAsync<E>(string sqlStatement, bool isStoredProcedure)
+        where E : class
     {
-        return await LoadDataAsync<T>(sqlStatement, [], isStoredProcedure);
+        return await LoadDataAsync<E>(sqlStatement, [], isStoredProcedure);
     }
     public void SaveData(string sqlStatement)
     {

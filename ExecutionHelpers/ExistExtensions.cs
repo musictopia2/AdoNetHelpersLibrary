@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AdoNetHelpersLibrary.ExecutionHelpers;
+﻿namespace AdoNetHelpersLibrary.ExecutionHelpers;
 internal static class ExistExtensions
 {
     public static bool Exists(this ICaptureCommandParameter capture, CompleteSqlData complete, IDbTransaction? transaction, int? commandTimeout)
