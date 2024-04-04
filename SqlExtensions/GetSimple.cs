@@ -76,27 +76,27 @@ public static class GetSimple
     #endregion
     #region Two Table One On One
 
-    public static E Get<E, D1>(this ICaptureCommandParameter capture, int id, Action<E, D1>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+    public static E Get<E, D1>(this ICaptureCommandParameter capture, int id, Action<E, D1?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, IJoinedEntity<D1>, ICommandQuery<E, D1, E>, ITableMapper<E>
         where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
     {
         IEnumerable<E> Results = capture.PrivateGetOneToOneItem(id, action, thisTran, connectionTimeOut);
         return Results.Single();
     }
-    public static BasicList<E> Get<E, D1>(this ICaptureCommandParameter capture, BasicList<SortInfo>? sortList, int howMany = 0, Action<E, D1>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null) 
+    public static BasicList<E> Get<E, D1>(this ICaptureCommandParameter capture, BasicList<SortInfo>? sortList, int howMany = 0, Action<E, D1?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null) 
         where E : class, IJoinedEntity<D1>, ICommandQuery<E, D1, E>, ITableMapper<E>
         where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
     {
         return capture.PrivateOneToOneSelectAll(sortList, howMany, action, thisTran, connectionTimeOut);
     }
-    public async static Task<E> GetAsync<E, D1>(this ICaptureCommandParameter capture, int id, Action<E, D1>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+    public async static Task<E> GetAsync<E, D1>(this ICaptureCommandParameter capture, int id, Action<E, D1?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, IJoinedEntity<D1>, ICommandQuery<E, D1, E>, ITableMapper<E>
         where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
     {
         IEnumerable<E> Results = await capture.PrivateGetOneToOneItemAsync<E, D1>(id, action, thisTran, connectionTimeOut);
         return Results.Single();
     }
-    public async static Task<BasicList<E>> GetAsync<E, D1>(this ICaptureCommandParameter capture, BasicList<SortInfo>? sortList, int howMany = 0, Action<E, D1>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+    public async static Task<BasicList<E>> GetAsync<E, D1>(this ICaptureCommandParameter capture, BasicList<SortInfo>? sortList, int howMany = 0, Action<E, D1?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, IJoinedEntity<D1>, ICommandQuery<E, D1, E>, ITableMapper<E>
         where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
     {
@@ -105,7 +105,7 @@ public static class GetSimple
         string sqls = GetSimpleSelectStatement<E, D1>(true, sortList, category, howMany);
         return await capture.QueryAsync<E, D1, E>(sqls, (Main, Detail) => PrivateOneToOne(Main, Detail, action), null, thisTran, commandTimeout: connectionTimeOut);
     }
-    private static BasicList<E> PrivateGetOneToOneItem<E, D1>(this ICaptureCommandParameter capture, int id, Action<E, D1>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+    private static BasicList<E> PrivateGetOneToOneItem<E, D1>(this ICaptureCommandParameter capture, int id, Action<E, D1?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, IJoinedEntity<D1>, ICommandQuery<E, D1, E>, ITableMapper<E> 
         where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
     {
@@ -115,7 +115,7 @@ public static class GetSimple
         BasicList<DynamicParameter> parameters = GetDynamicIDData(ref builder, id, true);
         return capture.Query<E, D1, E>(builder.ToString(), (Main, Detail) => PrivateOneToOne(Main, Detail, action), parameters, thisTran, commandTimeout: connectionTimeOut);
     }
-    private static BasicList<E> PrivateOneToOneSelectAll<E, D1>(this ICaptureCommandParameter capture, BasicList<SortInfo>? sortList, int howMany = 0, Action<E, D1>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+    private static BasicList<E> PrivateOneToOneSelectAll<E, D1>(this ICaptureCommandParameter capture, BasicList<SortInfo>? sortList, int howMany = 0, Action<E, D1?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, IJoinedEntity<D1>, ICommandQuery<E, D1, E>, ITableMapper<E> 
         where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
     {
@@ -123,7 +123,7 @@ public static class GetSimple
         string sqls = GetSimpleSelectStatement<E, D1>(true, sortList, category, howMany);
         return capture.Query<E, D1, E>(sqls, (Main, Detail) => PrivateOneToOne(Main, Detail, action), null, thisTran, commandTimeout: connectionTimeOut);
     }
-    private async static Task<BasicList<E>> PrivateGetOneToOneItemAsync<E, D1>(this ICaptureCommandParameter capture, int id, Action<E, D1>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+    private async static Task<BasicList<E>> PrivateGetOneToOneItemAsync<E, D1>(this ICaptureCommandParameter capture, int id, Action<E, D1?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, IJoinedEntity<D1>, ICommandQuery<E, D1, E>, ITableMapper<E> 
         where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
     {
@@ -133,7 +133,7 @@ public static class GetSimple
         BasicList<DynamicParameter> parameters = GetDynamicIDData(ref builder, id, true);
         return await capture.QueryAsync<E, D1, E>(builder.ToString(), (Main, Detail) => PrivateOneToOne(Main, Detail, action), parameters, thisTran, commandTimeout: connectionTimeOut);
     }
-    internal static E PrivateOneToOne<E, D1>(E main, D1 detail) 
+    internal static E PrivateOneToOne<E, D1>(E main, D1? detail) 
         where E : class, IJoinedEntity<D1>
         where D1: class, ISimpleDatabaseEntity
     {
@@ -144,13 +144,13 @@ public static class GetSimple
         main.AddRelationships(detail);
         return main;
     }
-    internal static E PrivateOneToOne<E, D1>(E main, D1 detail, Action<E, D1>? action)
+    internal static E PrivateOneToOne<E, D1>(E main, D1? detail, Action<E, D1?>? action)
         where E : class, IJoinedEntity<D1>
         where D1: class, ISimpleDatabaseEntity
     {
         if (detail is null)
         {
-            action?.Invoke(main, detail!);
+            action?.Invoke(main, detail);
             return main;
         }
         main.AddRelationships(detail);

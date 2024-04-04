@@ -21,6 +21,6 @@ public interface ICommandQuery<TFirst, TSecond, TReturn>
     where TSecond: class
     where TReturn : class
 {
-    abstract static BasicList<TReturn> Query(IDbCommand command, Func<TFirst, TSecond, TFirst> action);
-    abstract static Task<BasicList<TReturn>> QueryAsync(IDbCommand command, Func<TFirst, TSecond, TFirst> action);
+    abstract static BasicList<TReturn> Query(IDbCommand command, Func<TFirst, TSecond?, TFirst> action);
+    abstract static Task<BasicList<TReturn>> QueryAsync(IDbCommand command, Func<TFirst, TSecond?, TFirst> action);
 }
