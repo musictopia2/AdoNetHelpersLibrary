@@ -51,10 +51,11 @@ internal class SimpleStatementHelpers
         }
         return thisStr.ToString();
     }
-    public static (string sqls, BasicList<ColumnModel> MapList) GetSimpleSelectStatement<E>(EnumDatabaseCategory database, int howMany = 0) where E : class, ISimpleDatabaseEntity
+    public static (string sqls, BasicList<ColumnModel> MapList) GetSimpleSelectStatement<E>(EnumDatabaseCategory database, int howMany = 0)
+        where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         string tableName;
-        var map = TableMapGlobalClass<E>.GetMap();
+        var map = E.GetTableMap();
         tableName = map.TableName;
         string thisStr = GetSimpleSelectStatement(map.Columns, tableName, database, howMany: howMany);
         return (thisStr, map.Columns);
@@ -138,24 +139,19 @@ internal class SimpleStatementHelpers
         }
         return $"Limit {howMany}";
     }
-    public static string GetSortStatement<E>(BasicList<ColumnModel> mapList, BasicList<SortInfo>? sortList, bool isJoined)
-        where E: class, ISimpleDatabaseEntity
+    public static string GetSortStatement(BasicList<ColumnModel> mapList, BasicList<SortInfo>? sortList, bool isJoined)
     {
         if (sortList == null || sortList.Count == 0)
         {
             return "";
         }
-        //if (sortList.Count == 0)
-        //{
-        //    throw new CustomBasicException("If you are not sending nothing. you must have at least one condition");
-        //}
         StringBuilder thisStr = new();
         thisStr.Append(" order by ");
         string extras;
         StrCat cats = new();
         sortList.ForEach(items =>
         {
-            ColumnModel thisMap = TableMapGlobalClass<E>.FindMappingForProperty(items, mapList);
+            ColumnModel thisMap = items.FindMappingForProperty(mapList);
             if (items.OrderBy == SortInfo.EnumOrderBy.Descending)
             {
                 extras = " desc";

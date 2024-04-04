@@ -9,13 +9,15 @@ public static class BulkInsertDelete
         PopulateSimple(map.Columns, output, EnumCategory.UseDatabaseMapping);
         return output;
     }
-    private static CompleteSqlData GetDapperInsert<E>(EnumDatabaseCategory category, E thisObj) where E : class, ISimpleDatabaseEntity
+    private static CompleteSqlData GetDapperInsert<E>(EnumDatabaseCategory category, E thisObj)
+        where E : class, ITableMapper<E>, ISimpleDatabaseEntity
     {
-        bool isAutoIncremented = TableMapGlobalClass<E>.IsAutoIncrementing();
-        var map = TableMapGlobalClass<E>.GetMap(thisObj, isAutoIncremented, false);
+        bool isAutoIncremented = E.IsAutoIncremented;
+        var map = E.GetTableMap(thisObj, isAutoIncremented, false);
         return GetDapperInsert(category, map, isAutoIncremented);
     }
-    public static void InsertRange<E>(this ICaptureCommandParameter capture, BasicList<E> thisList, IDbTransaction thisTran, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
+    public static void InsertRange<E>(this ICaptureCommandParameter capture, BasicList<E> thisList, IDbTransaction thisTran, int? connectionTimeOut = null)
+        where E : class, ITableMapper<E>, ISimpleDatabaseEntity
     {
         EnumDatabaseCategory category = capture.Category;
         thisList.ForEach(items =>
@@ -32,7 +34,8 @@ public static class BulkInsertDelete
     {
         return await capture.ExecuteScalarAsync<int>(thisData.SQLStatement, thisData.Parameters, thisTran, commandTimeout: connectionTimeOut, CommandType.Text);
     }
-    public static async Task InsertRangeAsync<E>(this ICaptureCommandParameter capture, BasicList<E> thisList, IDbTransaction thisTran, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
+    public static async Task InsertRangeAsync<E>(this ICaptureCommandParameter capture, BasicList<E> thisList, IDbTransaction thisTran, int? connectionTimeOut = null)
+        where E : class, ITableMapper<E>, ISimpleDatabaseEntity
     {
         EnumDatabaseCategory category = capture.Category;
         await thisList.ForEachAsync(async Items =>
@@ -43,7 +46,8 @@ public static class BulkInsertDelete
     }
     #endregion
     #region Delete
-    public static void DeleteRange<E>(this ICaptureCommandParameter capture, BasicList<int> deleteList, IDbTransaction thisTran, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
+    public static void DeleteRange<E>(this ICaptureCommandParameter capture, BasicList<int> deleteList, IDbTransaction thisTran, int? connectionTimeOut = null) 
+        where E : class, ITableMapper<E>, ISimpleDatabaseEntity
     {
         deleteList.ForEach(xx =>
         {
@@ -51,7 +55,8 @@ public static class BulkInsertDelete
             capture.Execute(complete, thisTran, connectionTimeOut);
         });
     }
-    public static async Task DeleteRangeAsync<E>(this ICaptureCommandParameter capture, BasicList<int> deleteList, IDbTransaction thisTran, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
+    public static async Task DeleteRangeAsync<E>(this ICaptureCommandParameter capture, BasicList<int> deleteList, IDbTransaction thisTran, int? connectionTimeOut = null) 
+        where E : class, ITableMapper<E>, ISimpleDatabaseEntity
     {
         await deleteList.ForEachAsync(async xx =>
         {
@@ -59,7 +64,8 @@ public static class BulkInsertDelete
             await capture.ExecuteAsync(complete, thisTran, connectionTimeOut);
         });
     }
-    public static void DeleteRange<E>(this ICaptureCommandParameter capture, BasicList<E> objectList, IDbTransaction thisTran, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
+    public static void DeleteRange<E>(this ICaptureCommandParameter capture, BasicList<E> objectList, IDbTransaction thisTran, int? connectionTimeOut = null)
+        where E : class, ITableMapper<E>, ISimpleDatabaseEntity
     {
         BasicList<int> deleteList = objectList.GetIDList();
         deleteList.ForEach(xx =>
@@ -68,7 +74,8 @@ public static class BulkInsertDelete
             capture.Execute(complete, thisTran, connectionTimeOut);
         });
     }
-    public static async Task DeleteRangeAsync<E>(this ICaptureCommandParameter capture, BasicList<E> objectList, IDbTransaction thisTran, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
+    public static async Task DeleteRangeAsync<E>(this ICaptureCommandParameter capture, BasicList<E> objectList, IDbTransaction thisTran, int? connectionTimeOut = null) 
+        where E : class, ITableMapper<E>, ISimpleDatabaseEntity
     {
         BasicList<int> deleteList = objectList.GetIDList();
         await deleteList.ForEachAsync(async xx =>

@@ -1,10 +1,9 @@
 ﻿namespace AdoNetHelpersLibrary.SqlHelpers;
 internal static class StatementFactoryConditionsSingle
 {
-    public static (string sqls, BasicList<ColumnModel> ParameterMappings) GetConditionalStatement<E>(BasicList<ColumnModel> mapList, string tableName,
+    public static (string sqls, BasicList<ColumnModel> ParameterMappings) GetConditionalStatement(BasicList<ColumnModel> mapList, string tableName,
         BasicList<ICondition>? conditionList, BasicList<SortInfo>? sortList, EnumDatabaseCategory database, EnumSQLCategory category = EnumSQLCategory.Normal,
         int howMany = 0, string property = "")
-        where E : class, ISimpleDatabaseEntity
     {
         StringBuilder thisStr = new();
         if (category != EnumSQLCategory.Delete)
@@ -18,7 +17,7 @@ internal static class StatementFactoryConditionsSingle
         var paramList = new BasicList<ColumnModel>();
         if (conditionList == null)
         {
-            thisStr.Append(GetSortStatement<E>(mapList, sortList, false));
+            thisStr.Append(GetSortStatement(mapList, sortList, false));
             return (thisStr.ToString()!, null!);
         }
         thisStr.Append(" Where ");
@@ -33,7 +32,7 @@ internal static class StatementFactoryConditionsSingle
         {
             needsAppend = false;
         }
-        thisStr.Append(PopulatAnds<E>(andList, mapList, " and ", paramList, thisDict));
+        thisStr.Append(PopulatAnds(andList, mapList, " and ", paramList, thisDict));
         BasicList<OrCondition> orList = conditionList.Where(xx => xx.ConditionCategory == EnumConditionCategory.Or).ToCastedList<OrCondition>();
         StrCat cats = new();
         if (orList.Count > 0)
@@ -44,7 +43,7 @@ internal static class StatementFactoryConditionsSingle
             }
             needsAppend = true;
             thisStr.Append('(');
-            orList.ForEach(xx => cats.AddToString(PopulatAnds<E>(xx.ConditionList, mapList, " or ", paramList, thisDict), ") and ("));
+            orList.ForEach(xx => cats.AddToString(PopulatAnds(xx.ConditionList, mapList, " or ", paramList, thisDict), ") and ("));
             thisStr.Append(cats.GetInfo());
             thisStr.Append(')');
         }
@@ -87,7 +86,7 @@ internal static class StatementFactoryConditionsSingle
         }
         if (sortList != null)
         {
-            thisStr.Append(GetSortStatement<E>(mapList, sortList, false));
+            thisStr.Append(GetSortStatement(mapList, sortList, false));
         }
         if (database == EnumDatabaseCategory.SQLite && howMany != 0)
         {
@@ -104,13 +103,12 @@ internal static class StatementFactoryConditionsSingle
         thisStr.Append(')');
         return thisStr.ToString();
     }
-    private static string PopulatAnds<E>(BasicList<AndCondition> andList, BasicList<ColumnModel> mapList, string seperator, BasicList<ColumnModel> paramList, Dictionary<string, int> thisDict)
-        where E : class, ISimpleDatabaseEntity
+    private static string PopulatAnds(BasicList<AndCondition> andList, BasicList<ColumnModel> mapList, string seperator, BasicList<ColumnModel> paramList, Dictionary<string, int> thisDict)
     {
         StrCat cats = new();
         andList.ForEach(items =>
         {
-            ColumnModel thisMap = TableMapGlobalClass<E>.FindMappingForProperty(items, mapList);
+            ColumnModel thisMap = items.FindMappingForProperty(mapList);
             if (items.Operator == cs1.IsNotNull || items.Operator == cs1.IsNull)
             {
                 cats.AddToString($"{thisMap.ColumnName} {items.Operator}", seperator);

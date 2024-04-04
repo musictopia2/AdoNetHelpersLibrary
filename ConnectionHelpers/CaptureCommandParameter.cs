@@ -1,5 +1,4 @@
 ﻿namespace AdoNetHelpersLibrary.ConnectionHelpers;
-//hopefully okay (?)
 internal class CaptureCommandParameter : ICaptureCommandParameter, IDisposable
 {
     private readonly IConnector _connector;
@@ -11,12 +10,6 @@ internal class CaptureCommandParameter : ICaptureCommandParameter, IDisposable
     }
     public IDbConnection CurrentConnection { get; }
     EnumDatabaseCategory ICaptureCommandParameter.Category => _connector.Category;
-
-    //EnumDatabaseCategory ICaptureCommandParameter.Category
-    //{
-    //    get => _connector.Category;
-    //    set => _connector.Category = value;
-    //}
     public void Dispose()
     {
         CurrentConnection.Close();

@@ -1,11 +1,11 @@
 ﻿namespace AdoNetHelpersLibrary.ExecutionHelpers;
 public static class ExecuteExtensions
 {
-    public static void Execute(this ICaptureCommandParameter capture, CompleteSqlData complete, IDbTransaction? transaction, int? commandTimeout)
+    internal static void Execute(this ICaptureCommandParameter capture, CompleteSqlData complete, IDbTransaction? transaction, int? commandTimeout)
     {
         capture.Execute(complete.SQLStatement, complete.Parameters, transaction, commandTimeout, null);
     }
-    public static void Execute(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
+    public static void Execute(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
     {
         CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
         capture.Execute(commandDefinition);
@@ -29,11 +29,11 @@ public static class ExecuteExtensions
             capture.CurrentConnection.Close();
         }
     }
-    public static Task ExecuteAsync(this ICaptureCommandParameter capture, CompleteSqlData complete, IDbTransaction? transaction, int? commandTimeout)
+    internal static Task ExecuteAsync(this ICaptureCommandParameter capture, CompleteSqlData complete, IDbTransaction? transaction, int? commandTimeout)
     {
         return capture.ExecuteAsync(complete.SQLStatement, complete.Parameters, transaction, commandTimeout, null);
     }
-    public static async Task ExecuteAsync(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
+    public static async Task ExecuteAsync(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
     {
         CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
         await capture.ExecuteAsync(commandDefinition);

@@ -2,5 +2,5 @@
 public interface ICommandExecuteScalar<E, R>
     where E : class
 {
-    R? ExecuteScalar(IDbCommand command);
+    abstract static R? ExecuteScalar(IDbCommand command);
 }

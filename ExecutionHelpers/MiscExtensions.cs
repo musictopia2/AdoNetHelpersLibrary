@@ -1,5 +1,5 @@
 ﻿namespace AdoNetHelpersLibrary.ExecutionHelpers;
-public static class MiscExtensions
+internal static class MiscExtensions
 {
     private static void SetDatabaseParameters(this ICaptureCommandParameter capture, IDbCommand command, BasicList<DynamicParameter>? parameters)
     {

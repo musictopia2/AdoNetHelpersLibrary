@@ -1,6 +1,6 @@
 ﻿namespace AdoNetHelpersLibrary.MapHelpers;
-//in the old version, was internal.  has to be public so source generators can use this.
-public class CompleteSqlData
+//its possible that source generators don't even need this (?)
+internal class CompleteSqlData
 {
     public string SQLStatement { get; set; } = "";
     public BasicList<DynamicParameter> Parameters { get; set; } = [];

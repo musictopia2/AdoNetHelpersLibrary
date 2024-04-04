@@ -2,32 +2,20 @@
 internal static class StatementSelectFactoryJoin
 {
     #region No Conditions
-    private static SourceGeneratedMap GetMap<E>()
-        where E : class, ISimpleDatabaseEntity
+    private static void StartList<E>(out BasicList<ColumnModel> thisList, out BasicList<string> joinList, out string tableName) 
+        where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
-        return TableMapGlobalClass<E>.GetMap();
-    }
-    private static SourceGeneratedMap GetJoinedMap<D>(bool joined)
-        where D: class, ISimpleDatabaseEntity
-    {
-        return TableMapGlobalClass<D>.GetMap(joined);
-    }
-    private static string GetForeignKey<E>(string tableName)
-        where E: class, ISimpleDatabaseEntity
-    {
-        return TableMapGlobalClass<E>.GetForeignKey(tableName);
-    }
-    private static void StartList<E>(out BasicList<ColumnModel> thisList, out BasicList<string> joinList, out string tableName) where E : class, ISimpleDatabaseEntity
-    {
-        SourceGeneratedMap map = GetMap<E>();
+        SourceGeneratedMap map = E.GetTableMap();
         thisList = map.Columns;
         tableName = map.TableName; //i think
         joinList = [];
         thisList.ForEach(x => x.Prefix = "a");
     }
-    private static void AppendList<E, D>(BasicList<ColumnModel> thisList, BasicList<string> joinList, string oldTableName, string prefix, bool isOneToOne = true, string firsts = "a", string newTable = "") where D : class, ISimpleDatabaseEntity where E : class, ISimpleDatabaseEntity
+    private static void AppendList<E, D>(BasicList<ColumnModel> thisList, BasicList<string> joinList, string oldTableName, string prefix, bool isOneToOne = true, string firsts = "a", string newTable = "") 
+        where E : class, ISimpleDatabaseEntity, ITableMapper<E>
+        where D : class, ISimpleDatabaseEntity, ITableMapper<D>
     {
-        SourceGeneratedMap other = GetJoinedMap<D>(isOneToOne);
+        SourceGeneratedMap other = D.GetTableMap(isOneToOne);
         BasicList<ColumnModel> newList = other.Columns;
         newList.ForEach(items => items.Prefix = prefix);
         thisList.AddRange(newList);
@@ -46,16 +34,16 @@ internal static class StatementSelectFactoryJoin
         string possibleKey;
         if (isOneToOne)
         {
-            possibleKey = GetForeignKey<E>(otherTable);
+            possibleKey = E.GetForeignKey(otherTable);
         }
         else
         {
-            possibleKey = GetForeignKey<D>(oldTableName);
+            possibleKey = D.GetForeignKey(oldTableName);
         }
         if (possibleKey == "")
         {
             hiddenOneToOne = false; //try this way.
-            foreign = GetForeignKey<D>(oldTableName); //always the old table name period.
+            foreign = D.GetForeignKey(oldTableName);
         }
         else
         {
@@ -67,17 +55,17 @@ internal static class StatementSelectFactoryJoin
         }
         if (hiddenOneToOne == true)
         {
-            //foreign = TableMapGlobalClass<E, D>.GetJoiner();
             thisStr = $"{otherTable} {prefix} on {firsts}.{foreign}={prefix}.ID";
         }
         else
         {
-            //foreign = TableMapGlobalClass<D, E>.GetJoiner();
             thisStr = $"{otherTable} {prefix} on {firsts}.ID={prefix}.{foreign}";
         }
         joinList.Add(thisStr);
     }
-    public static string GetSimpleSelectStatement<E, D1>(bool isOneToOne, BasicList<SortInfo>? sortList, EnumDatabaseCategory category, int howMany = 0) where E : class, ISimpleDatabaseEntity, IJoinedEntity<D1> where D1 : class, ISimpleDatabaseEntity
+    public static string GetSimpleSelectStatement<E, D1>(bool isOneToOne, BasicList<SortInfo>? sortList, EnumDatabaseCategory category, int howMany = 0) 
+        where E : class, ISimpleDatabaseEntity, IJoinedEntity<D1>, ITableMapper<E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
     {
         StartList<E>(out BasicList<ColumnModel> thisList, out BasicList<string> joinList, out string tableName);
         AppendList<E, D1>(thisList, joinList, tableName, "b", isOneToOne);
@@ -87,7 +75,7 @@ internal static class StatementSelectFactoryJoin
             return sqls;
         }
         StringBuilder thisStr = new(sqls);
-        thisStr.Append(GetSortStatement<E>(thisList, sortList, true)); //i think
+        thisStr.Append(GetSortStatement(thisList, sortList, true)); //i think
         thisStr.Append(GetLimitSQLite(category, howMany));
         return thisStr.ToString();
     }
@@ -125,8 +113,7 @@ internal static class StatementSelectFactoryJoin
     }
     #endregion
     #region #region With Conditions
-    private static (string sqls, BasicList<ColumnModel> ParameterMappings) FinishConditionStatement<E>(BasicList<ColumnModel> mapList, BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList, StringBuilder thisStr, EnumDatabaseCategory category, int howMany = 0)
-        where E: class, ISimpleDatabaseEntity
+    private static (string sqls, BasicList<ColumnModel> ParameterMappings) FinishConditionStatement(BasicList<ColumnModel> mapList, BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList, StringBuilder thisStr, EnumDatabaseCategory category, int howMany = 0)
     {
         var paramList = new BasicList<ColumnModel>();
         thisStr.Append(" Where ");
@@ -141,7 +128,7 @@ internal static class StatementSelectFactoryJoin
         {
             needsAppend = false;
         }
-        thisStr.Append(PopulatAnds<E>(andList, mapList, " and ", paramList, thisDict));
+        thisStr.Append(PopulatAnds(andList, mapList, " and ", paramList, thisDict));
         BasicList<OrCondition> orList = conditionList.Where(items => items.ConditionCategory == EnumConditionCategory.Or).ToCastedList<OrCondition>();
         StrCat cats = new();
         if (orList.Count > 0)
@@ -152,7 +139,7 @@ internal static class StatementSelectFactoryJoin
             }
             needsAppend = true;
             thisStr.Append('(');
-            orList.ForEach(items => cats.AddToString(PopulatAnds<E>(items.ConditionList, mapList, " or ", paramList, thisDict), ") and ("));
+            orList.ForEach(items => cats.AddToString(PopulatAnds(items.ConditionList, mapList, " or ", paramList, thisDict), ") and ("));
             thisStr.Append(cats.GetInfo());
             thisStr.Append(')');
         }
@@ -191,18 +178,20 @@ internal static class StatementSelectFactoryJoin
         }
         if (sortList != null)
         {
-            thisStr.Append(GetSortStatement<E>(mapList, sortList, true));
+            thisStr.Append(GetSortStatement(mapList, sortList, true));
         }
         thisStr.Append(GetLimitSQLite(category, howMany));
         return (thisStr.ToString(), paramList);
     }
-    public static (string sqls, BasicList<ColumnModel> ParameterMappings) GetConditionalStatement<E, D1>(BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList, bool isOneToOne, EnumDatabaseCategory category, int howMany = 0) where E : class, IJoinedEntity<D1> where D1 : class, ISimpleDatabaseEntity
+    public static (string sqls, BasicList<ColumnModel> ParameterMappings) GetConditionalStatement<E, D1>(BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList, bool isOneToOne, EnumDatabaseCategory category, int howMany = 0)
+        where E : class, IJoinedEntity<D1>, ITableMapper<E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
     {
         StringBuilder thisStr = new();
         StartList<E>(out BasicList<ColumnModel> mapList, out BasicList<string> joinList, out string tableName);
         AppendList<E, D1>(mapList, joinList, tableName, "b", isOneToOne);
         thisStr.Append(GetSimpleSelectStatement(mapList, joinList, tableName, category, howMany));
-        return FinishConditionStatement<E>(mapList, conditionList, sortList, thisStr, category, howMany);
+        return FinishConditionStatement(mapList, conditionList, sortList, thisStr, category, howMany);
     }
     private static string PopulateListInfo(BasicList<int> thisList)
     {
@@ -213,12 +202,12 @@ internal static class StatementSelectFactoryJoin
         thisStr.Append(')');
         return thisStr.ToString();
     }
-    private static string PopulatAnds<E>(BasicList<AndCondition> andList, BasicList<ColumnModel> mapList, string seperator, BasicList<ColumnModel> paramList, Dictionary<string, int> thisDict) where E: class, ISimpleDatabaseEntity
+    private static string PopulatAnds(BasicList<AndCondition> andList, BasicList<ColumnModel> mapList, string seperator, BasicList<ColumnModel> paramList, Dictionary<string, int> thisDict)
     {
         StrCat cats = new();
         andList.ForEach(items =>
         {
-            ColumnModel thisMap = TableMapGlobalClass<E>.FindMappingForProperty(items, mapList);
+            ColumnModel thisMap = items.FindMappingForProperty(mapList);
             if (items.Operator == cs1.IsNotNull || items.Operator == cs1.IsNull)
             {
                 cats.AddToString($"{thisMap.Prefix}.{thisMap.ColumnName} {items.Operator}", seperator); //i am guessing that with parameters no need to worry about the null parts

@@ -1,11 +1,11 @@
 ﻿namespace AdoNetHelpersLibrary.ExecutionHelpers;
 internal static class ExistExtensions
 {
-    public static bool Exists(this ICaptureCommandParameter capture, CompleteSqlData complete, IDbTransaction? transaction, int? commandTimeout)
+    public static bool Exists(this ICaptureCommandParameter capture, CompleteSqlData complete, IDbTransaction? transaction = null, int? commandTimeout = null)
     {
         return capture.Exists(complete.SQLStatement, complete.Parameters, transaction, commandTimeout, null);
     }
-    public static bool Exists(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param, IDbTransaction? transaction, int? commandTimeout, CommandType? commandType)
+    public static bool Exists(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
     {
         CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
         return capture.Exists(commandDefinition);

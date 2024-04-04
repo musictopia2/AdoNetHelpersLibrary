@@ -2,16 +2,17 @@
 public static class InsertSimple
 {
     private static CompleteSqlData PrivateGetInsert<E>(E thisObj, EnumDatabaseCategory category, out bool isAutoIncremented)
-        where E : class, ISimpleDatabaseEntity
+        where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         CompleteSqlData output = new();
-        isAutoIncremented = TableMapGlobalClass<E>.IsAutoIncrementing();
-        var map = TableMapGlobalClass<E>.GetMap(thisObj, isAutoIncremented);
+        isAutoIncremented = E.IsAutoIncremented;
+        var map = E.GetTableMap(thisObj, isAutoIncremented);
         output.SQLStatement = GetInsertStatement(category, map, isAutoIncremented);
         PopulateSimple(map.Columns, output, EnumCategory.UseDatabaseMapping);
         return output;
     }
-    public static int InsertSingle<E>(this ICaptureCommandParameter connector, E thisObject, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
+    public static int InsertSingle<E>(this ICaptureCommandParameter connector, E thisObject, IDbTransaction? thisTran = null, int? connectionTimeOut = null) 
+        where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         EnumDatabaseCategory category = connector.Category;
         CompleteSqlData data = PrivateGetInsert(thisObject, category, out bool IsAutoIncremented);
@@ -22,7 +23,8 @@ public static class InsertSimple
         }
         return thisObject.ID;
     }
-    public static async Task<int> InsertSingleAsync<E>(this ICaptureCommandParameter connector, E thisObject, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
+    public static async Task<int> InsertSingleAsync<E>(this ICaptureCommandParameter connector, E thisObject, IDbTransaction? thisTran = null, int? connectionTimeOut = null) 
+        where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         EnumDatabaseCategory category = connector.Category;
         CompleteSqlData data = PrivateGetInsert(thisObject, category, out bool IsAutoIncremented);
