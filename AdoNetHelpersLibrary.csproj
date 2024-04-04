@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommonBasicLibraries" Version="8.0.20" />
+    <PackageReference Include="CommonBasicLibraries" Version="8.0.23" />
     <PackageReference Include="MappingCloningExtensions" Version="2.0.4" PrivateAssets="all" />
   </ItemGroup>
 

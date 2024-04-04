@@ -2,7 +2,7 @@
 public static class InsertSimple
 {
     private static CompleteSqlData PrivateGetInsert<E>(E thisObj, EnumDatabaseCategory category, out bool isAutoIncremented)
-        where E : class, ISimpleDapperEntity
+        where E : class, ISimpleDatabaseEntity
     {
         CompleteSqlData output = new();
         isAutoIncremented = TableMapGlobalClass<E>.IsAutoIncrementing();
@@ -11,7 +11,7 @@ public static class InsertSimple
         PopulateSimple(map.Columns, output, EnumCategory.UseDatabaseMapping);
         return output;
     }
-    public static int InsertSingle<E>(this ICaptureCommandParameter connector, E thisObject, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
+    public static int InsertSingle<E>(this ICaptureCommandParameter connector, E thisObject, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
     {
         EnumDatabaseCategory category = connector.Category;
         CompleteSqlData data = PrivateGetInsert(thisObject, category, out bool IsAutoIncremented);
@@ -22,7 +22,7 @@ public static class InsertSimple
         }
         return thisObject.ID;
     }
-    public static async Task<int> InsertSingleAsync<E>(this ICaptureCommandParameter connector, E thisObject, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
+    public static async Task<int> InsertSingleAsync<E>(this ICaptureCommandParameter connector, E thisObject, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
     {
         EnumDatabaseCategory category = connector.Category;
         CompleteSqlData data = PrivateGetInsert(thisObject, category, out bool IsAutoIncremented);

@@ -4,7 +4,7 @@ internal static class StatementFactoryConditionsSingle
     public static (string sqls, BasicList<ColumnModel> ParameterMappings) GetConditionalStatement<E>(BasicList<ColumnModel> mapList, string tableName,
         BasicList<ICondition>? conditionList, BasicList<SortInfo>? sortList, EnumDatabaseCategory database, EnumSQLCategory category = EnumSQLCategory.Normal,
         int howMany = 0, string property = "")
-        where E : class, ISimpleDapperEntity
+        where E : class, ISimpleDatabaseEntity
     {
         StringBuilder thisStr = new();
         if (category != EnumSQLCategory.Delete)
@@ -105,7 +105,7 @@ internal static class StatementFactoryConditionsSingle
         return thisStr.ToString();
     }
     private static string PopulatAnds<E>(BasicList<AndCondition> andList, BasicList<ColumnModel> mapList, string seperator, BasicList<ColumnModel> paramList, Dictionary<string, int> thisDict)
-        where E : class, ISimpleDapperEntity
+        where E : class, ISimpleDatabaseEntity
     {
         StrCat cats = new();
         andList.ForEach(items =>

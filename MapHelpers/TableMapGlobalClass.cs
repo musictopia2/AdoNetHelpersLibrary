@@ -1,6 +1,6 @@
 ﻿namespace AdoNetHelpersLibrary.MapHelpers;
 public static class TableMapGlobalClass<E>
-    where E : class, ISimpleDapperEntity
+    where E : class, ISimpleDatabaseEntity
 {
     public static ITableMapper<E>? MasterContext { get; set; }
     internal static SourceGeneratedMap GetMap(E payLoad, bool isAutoIncremented = true, bool beingJoined = false)
@@ -27,6 +27,14 @@ public static class TableMapGlobalClass<E>
         }
         return MasterContext.TableName;
     }
+    internal static string GetForeignKey(string name)
+    {
+        if (MasterContext is null)
+        {
+            throw new CustomBasicException($"No map was created for table {typeof(E)}.  Try creating a source generator");
+        }
+        return MasterContext.GetForeignKey(name);
+    }
     internal static SourceGeneratedMap GetMap(bool beingJoined = false)
     {
         if (MasterContext is null)
@@ -51,3 +59,17 @@ public static class TableMapGlobalClass<E>
         }
     }
 }
+//public static class TableMapGlobalClass<E, D1>
+//    where E: class, ISimpleDatabaseEntity
+//    where D1: class, ISimpleDatabaseEntity
+//{
+//    public static ITableMapper<E, D1>? MasterContext { get; set; }
+//    public static string GetJoiner()
+//    {
+//        if (MasterContext is null)
+//        {
+//            throw new CustomBasicException($"No join mapper was created for main type of {typeof(E)} and other type of {typeof(D1)}");
+//        }
+//        return MasterContext.GetJoiner;
+//    }
+//}

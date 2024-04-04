@@ -16,3 +16,11 @@ public interface ICommandQuery<E, R>
     BasicList<R> Query(IDbCommand command);
     Task<BasicList<R>> QueryAsync(IDbCommand command);
 }
+public interface ICommandQuery<TFirst, TSecond, TReturn>
+    where TFirst: class
+    where TSecond: class
+    where TReturn : class
+{
+    BasicList<TReturn> Query(IDbCommand command, Func<TFirst, TSecond, TFirst> action);
+    Task<BasicList<TReturn>> QueryAsync(IDbCommand command, Func<TFirst, TSecond, TFirst> action);
+}

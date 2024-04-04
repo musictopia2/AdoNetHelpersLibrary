@@ -25,5 +25,7 @@ global using CommonBasicLibraries.DatabaseHelpers.ConditionClasses;
 global using static CommonBasicLibraries.DatabaseHelpers.MiscClasses.StaticHelpers;
 global using cs1 = CommonBasicLibraries.DatabaseHelpers.ConditionClasses.ConditionOperators;
 global using static AdoNetHelpersLibrary.SqlHelpers.StatementFactoryConditionsSingle;
+global using static AdoNetHelpersLibrary.SqlHelpers.StatementSelectFactoryJoin;
 global using static AdoNetHelpersLibrary.SqlExtensions.DeleteSimple;
 global using DapperHelpersLibrary.Extensions;
+global using static AdoNetHelpersLibrary.SqlExtensions.GetSimple;

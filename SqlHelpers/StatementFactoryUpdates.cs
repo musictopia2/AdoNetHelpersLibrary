@@ -7,7 +7,7 @@ public static class StatementFactoryUpdates
         All,
         Common
     }
-    internal static (string sqls, BasicList<ColumnModel> ParameterMappings) GetUpdateStatement<E>(E thisEntity, BasicList<UpdateFieldInfo> manuelList) where E : class, ISimpleDapperEntity
+    internal static (string sqls, BasicList<ColumnModel> ParameterMappings) GetUpdateStatement<E>(E thisEntity, BasicList<UpdateFieldInfo> manuelList) where E : class, ISimpleDatabaseEntity
     {
         if (manuelList.Count == 0)
         {
@@ -16,7 +16,7 @@ public static class StatementFactoryUpdates
         BasicList<ColumnModel> updateList = GetParameterMappings<E>(thisEntity, manuelList);
         return GetUpdateStatement(updateList);
     }
-    internal static (string sqls, BasicList<ColumnModel> ParameterMappings) GetUpdateStatement<E>(BasicList<UpdateEntity> manuelList) where E : class, ISimpleDapperEntity
+    internal static (string sqls, BasicList<ColumnModel> ParameterMappings) GetUpdateStatement<E>(BasicList<UpdateEntity> manuelList) where E : class, ISimpleDatabaseEntity
     {
         if (manuelList.Count == 0)
         {
@@ -30,7 +30,7 @@ public static class StatementFactoryUpdates
         BasicList<ColumnModel> updateList = GetParameterMappings(thisEntity);
         return GetUpdateStatement(updateList);
     }
-    internal static (string sqls, BasicList<ColumnModel> ParameterMappings) GetUpdateStatement<E>(E thisEntity, EnumUpdateCategory category) where E : class, ISimpleDapperEntity
+    internal static (string sqls, BasicList<ColumnModel> ParameterMappings) GetUpdateStatement<E>(E thisEntity, EnumUpdateCategory category) where E : class, ISimpleDatabaseEntity
     {
         BasicList<ColumnModel> updateList = GetParameterMappings(thisEntity, category);
         return GetUpdateStatement(updateList);
@@ -56,7 +56,7 @@ public static class StatementFactoryUpdates
         thisStr.Append(" where ID = @ID");
         return (thisStr.ToString(), updateList);
     }
-    private static BasicList<ColumnModel> GetParameterMappings<E>(BasicList<UpdateEntity> updateList) where E : class, ISimpleDapperEntity
+    private static BasicList<ColumnModel> GetParameterMappings<E>(BasicList<UpdateEntity> updateList) where E : class, ISimpleDatabaseEntity
     {
         if (updateList.Count == 0)
         {
@@ -77,7 +77,7 @@ public static class StatementFactoryUpdates
         });
         return newList;
     }
-    private static BasicList<ColumnModel> GetParameterMappings<E>(E thisEntity, BasicList<UpdateFieldInfo> updateList) where E : class, ISimpleDapperEntity
+    private static BasicList<ColumnModel> GetParameterMappings<E>(E thisEntity, BasicList<UpdateFieldInfo> updateList) where E : class, ISimpleDatabaseEntity
     {
         if (updateList.Count == 0)
         {
@@ -106,7 +106,7 @@ public static class StatementFactoryUpdates
         updateList.Append(firstList);
         return GetParameterMappings(thisEntity, updateList);
     }
-    private static BasicList<ColumnModel> GetParameterMappings<E>(E thisEntity, EnumUpdateCategory category) where E : class, ISimpleDapperEntity
+    private static BasicList<ColumnModel> GetParameterMappings<E>(E thisEntity, EnumUpdateCategory category) where E : class, ISimpleDatabaseEntity
     {
         BasicList<UpdateFieldInfo> updateList = [];
         if (category == EnumUpdateCategory.Auto)

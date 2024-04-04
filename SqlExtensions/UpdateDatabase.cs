@@ -1,7 +1,7 @@
 ﻿namespace AdoNetHelpersLibrary.SqlExtensions;
 public static class UpdateDatabase
 {
-    public static void UpdateEntity<E>(this ICaptureCommandParameter capture, E thisEntity, EnumUpdateCategory category, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
+    public static void UpdateEntity<E>(this ICaptureCommandParameter capture, E thisEntity, EnumUpdateCategory category, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
     {
         var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity, category);
         capture.PrivateUpdateEntity(thisEntity, sqls, ParameterMappings, thisTran, connectionTimeOut);
@@ -11,12 +11,12 @@ public static class UpdateDatabase
         var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity);
         capture.PrivateUpdateEntity(thisEntity, sqls, ParameterMappings, thisTran, connectionTimeOut);
     }
-    public static void UpdateEntity<E>(this ICaptureCommandParameter capture, E thisEntity, BasicList<UpdateFieldInfo> updateList, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
+    public static void UpdateEntity<E>(this ICaptureCommandParameter capture, E thisEntity, BasicList<UpdateFieldInfo> updateList, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
     {
         var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity, updateList);
         capture.PrivateUpdateEntity(thisEntity, sqls, ParameterMappings, thisTran, connectionTimeOut);
     }
-    public static async Task UpdateEntityAsync<E>(this ICaptureCommandParameter capture, E thisEntity, EnumUpdateCategory category, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
+    public static async Task UpdateEntityAsync<E>(this ICaptureCommandParameter capture, E thisEntity, EnumUpdateCategory category, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
     {
         var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity, category);
         await capture.PrivateUpdateEntityAsync(thisEntity, sqls, ParameterMappings, thisTran, connectionTimeOut);
@@ -26,12 +26,12 @@ public static class UpdateDatabase
         var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity);
         await capture.PrivateUpdateEntityAsync(thisEntity, sqls, ParameterMappings, thisTran, connectionTimeOut);
     }
-    public static async Task UpdateEntityAsync<E>(this ICaptureCommandParameter capture, E thisEntity, BasicList<UpdateFieldInfo> updateList, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
+    public static async Task UpdateEntityAsync<E>(this ICaptureCommandParameter capture, E thisEntity, BasicList<UpdateFieldInfo> updateList, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
     {
         var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity, updateList);
         await capture.PrivateUpdateEntityAsync(thisEntity, sqls, ParameterMappings, thisTran, connectionTimeOut);
     }
-    public static void Update<E>(this ICaptureCommandParameter capture, int id, BasicList<UpdateEntity> updateList, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
+    public static void Update<E>(this ICaptureCommandParameter capture, int id, BasicList<UpdateEntity> updateList, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
     {
         var (sqls, ParameterMappings) = GetUpdateStatement<E>(updateList);
         CompleteSqlData thisData = new();
@@ -44,7 +44,7 @@ public static class UpdateDatabase
         thisData.Parameters.Add(parameter);
         capture.Execute(thisData, thisTran, connectionTimeOut);
     }
-    private static void PrivateUpdateEntity<E>(this ICaptureCommandParameter capture, E thisEntity, string sqls, BasicList<ColumnModel>? updateList, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
+    private static void PrivateUpdateEntity<E>(this ICaptureCommandParameter capture, E thisEntity, string sqls, BasicList<ColumnModel>? updateList, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
     {
         if (sqls == "")
         {
@@ -60,7 +60,7 @@ public static class UpdateDatabase
         thisData.Parameters.Add(parameter);
         capture.Execute(thisData, thisTran, connectionTimeOut);
     }
-    private static async Task PrivateUpdateEntityAsync<E>(this ICaptureCommandParameter capture, E thisEntity, string sqls, BasicList<ColumnModel>? updateList, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDapperEntity
+    private static async Task PrivateUpdateEntityAsync<E>(this ICaptureCommandParameter capture, E thisEntity, string sqls, BasicList<ColumnModel>? updateList, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
     {
         if (sqls == "")
         {

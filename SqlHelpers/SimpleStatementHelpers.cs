@@ -51,7 +51,7 @@ internal class SimpleStatementHelpers
         }
         return thisStr.ToString();
     }
-    public static (string sqls, BasicList<ColumnModel> MapList) GetSimpleSelectStatement<E>(EnumDatabaseCategory database, int howMany = 0) where E : class, ISimpleDapperEntity
+    public static (string sqls, BasicList<ColumnModel> MapList) GetSimpleSelectStatement<E>(EnumDatabaseCategory database, int howMany = 0) where E : class, ISimpleDatabaseEntity
     {
         string tableName;
         var map = TableMapGlobalClass<E>.GetMap();
@@ -139,7 +139,7 @@ internal class SimpleStatementHelpers
         return $"Limit {howMany}";
     }
     public static string GetSortStatement<E>(BasicList<ColumnModel> mapList, BasicList<SortInfo>? sortList, bool isJoined)
-        where E: class, ISimpleDapperEntity
+        where E: class, ISimpleDatabaseEntity
     {
         if (sortList == null || sortList.Count == 0)
         {
