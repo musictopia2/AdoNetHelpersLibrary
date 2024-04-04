@@ -251,7 +251,7 @@ public class BasicConnector : IConnector
     #region Unique Functions
     public async Task UpdateListOnlyAsync<E>(BasicList<E> updateList, EnumUpdateCategory category = EnumUpdateCategory.Common, IsolationLevel isolationLevel = IsolationLevel.Unspecified) where E : class, ISimpleDatabaseEntity
     {
-        await DoBulkWorkAsync<E>(async (capture, tran, thisEntity) =>
+        await DoBulkWorkAsync(async (capture, tran, thisEntity) =>
         {
             await capture.UpdateEntityAsync(thisEntity, category: category, thisTran: tran);
             tran.Commit();

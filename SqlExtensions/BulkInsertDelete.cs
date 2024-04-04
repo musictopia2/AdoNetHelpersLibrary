@@ -1,4 +1,4 @@
-﻿namespace DapperHelpersLibrary.Extensions;
+﻿namespace AdoNetHelpersLibrary.SqlExtensions;
 public static class BulkInsertDelete
 {
     #region Insert

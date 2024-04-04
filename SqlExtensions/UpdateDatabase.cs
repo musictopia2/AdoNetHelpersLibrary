@@ -3,37 +3,45 @@ public static class UpdateDatabase
 {
     public static void UpdateEntity<E>(this ICaptureCommandParameter capture, E thisEntity, EnumUpdateCategory category, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
     {
-        var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity, category);
+        var map = TableMapGlobalClass<E>.GetMap(thisEntity);
+
+        var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity, category, map);
         capture.PrivateUpdateEntity(thisEntity, sqls, ParameterMappings, thisTran, connectionTimeOut);
     }
     public static void UpdateEntity<E>(this ICaptureCommandParameter capture, E thisEntity, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, IUpdatableEntity
     {
-        var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity);
+        var map = TableMapGlobalClass<E>.GetMap(thisEntity);
+        var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity, map);
         capture.PrivateUpdateEntity(thisEntity, sqls, ParameterMappings, thisTran, connectionTimeOut);
     }
     public static void UpdateEntity<E>(this ICaptureCommandParameter capture, E thisEntity, BasicList<UpdateFieldInfo> updateList, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
     {
-        var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity, updateList);
+        var map = TableMapGlobalClass<E>.GetMap(thisEntity);
+        var (sqls, ParameterMappings) = GetUpdateStatement<E>(updateList, map);
         capture.PrivateUpdateEntity(thisEntity, sqls, ParameterMappings, thisTran, connectionTimeOut);
     }
     public static async Task UpdateEntityAsync<E>(this ICaptureCommandParameter capture, E thisEntity, EnumUpdateCategory category, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
     {
-        var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity, category);
+        var map = TableMapGlobalClass<E>.GetMap(thisEntity);
+        var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity, category, map);
         await capture.PrivateUpdateEntityAsync(thisEntity, sqls, ParameterMappings, thisTran, connectionTimeOut);
     }
     public static async Task UpdateEntityAsync<E>(this ICaptureCommandParameter capture, E thisEntity, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, IUpdatableEntity
     {
-        var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity);
+        var map = TableMapGlobalClass<E>.GetMap(thisEntity);
+        var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity, map);
         await capture.PrivateUpdateEntityAsync(thisEntity, sqls, ParameterMappings, thisTran, connectionTimeOut);
     }
     public static async Task UpdateEntityAsync<E>(this ICaptureCommandParameter capture, E thisEntity, BasicList<UpdateFieldInfo> updateList, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
     {
-        var (sqls, ParameterMappings) = GetUpdateStatement(thisEntity, updateList);
+        var map = TableMapGlobalClass<E>.GetMap(thisEntity);
+        var (sqls, ParameterMappings) = GetUpdateStatement<E>(updateList, map);
         await capture.PrivateUpdateEntityAsync(thisEntity, sqls, ParameterMappings, thisTran, connectionTimeOut);
     }
     public static void Update<E>(this ICaptureCommandParameter capture, int id, BasicList<UpdateEntity> updateList, IDbTransaction? thisTran = null, int? connectionTimeOut = null) where E : class, ISimpleDatabaseEntity
     {
-        var (sqls, ParameterMappings) = GetUpdateStatement<E>(updateList);
+        var map = TableMapGlobalClass<E>.GetMap(); //try this way.
+        var (sqls, ParameterMappings) = GetUpdateStatement<E>(updateList, map);
         CompleteSqlData thisData = new();
         thisData.SQLStatement = sqls;
         PopulateSimple(ParameterMappings, thisData, EnumCategory.UseDatabaseMapping);

@@ -66,7 +66,7 @@ public static class QueryExtensions
     public static BasicList<E> Query<E>(this ICaptureCommandParameter capture, CommandDefinition command)
         where E : class
     {
-        var item = CommandQueryGlobalClass<E>.MasterContext ?? throw new CustomBasicException($"Nothing was registered for type {typeof(E)}.  Try creating a source generator and register it");
+        var item = CommandQueryGlobalClass<E>.MasterContext ?? throw new CustomBasicException($"Nothing was registered for ICommandQuery for type {typeof(E)}.  Try creating a source generator and register it");
         bool isClosed;
         isClosed = capture.CurrentConnection.State == ConnectionState.Closed;
         if (isClosed)
@@ -94,7 +94,7 @@ public static class QueryExtensions
     public static async Task<BasicList<E>> QueryAsync<E>(this ICaptureCommandParameter capture, CommandDefinition command)
         where E : class
     {
-        var item = CommandQueryGlobalClass<E>.MasterContext ?? throw new CustomBasicException($"Nothing was registered for type {typeof(E)}.  Try creating a source generator and register it");
+        var item = CommandQueryGlobalClass<E>.MasterContext ?? throw new CustomBasicException($"Nothing was registered for ICommandQuery for type {typeof(E)}.  Try creating a source generator and register it");
         bool isClosed;
         isClosed = capture.CurrentConnection.State == ConnectionState.Closed;
         if (isClosed)
@@ -134,7 +134,7 @@ public static class QueryExtensions
         where TSecond : class
         where TReturn : class
     {
-        var item = CommandQueryGlobalClass<TFirst, TSecond, TReturn>.MasterContext ?? throw new CustomBasicException($"Nothing was registered for first type {typeof(TFirst)} and second type of {typeof(TSecond)} second type but the return type is {typeof(TReturn)}.  Try creating a source generator and register it");
+        var item = CommandQueryGlobalClass<TFirst, TSecond, TReturn>.MasterContext ?? throw new CustomBasicException($"Nothing was registered for ICommandQuery first type {typeof(TFirst)} and second type of {typeof(TSecond)} second type but the return type is {typeof(TReturn)}.  Try creating a source generator and register it");
         bool isClosed;
         isClosed = capture.CurrentConnection.State == ConnectionState.Closed;
         if (isClosed)
@@ -174,7 +174,7 @@ public static class QueryExtensions
         where TSecond : class
         where TReturn : class
     {
-        var item = CommandQueryGlobalClass<TFirst, TSecond, TReturn>.MasterContext ?? throw new CustomBasicException($"Nothing was registered for first type {typeof(TFirst)} and second type of {typeof(TSecond)} second type but the return type is {typeof(TReturn)}.  Try creating a source generator and register it");
+        var item = CommandQueryGlobalClass<TFirst, TSecond, TReturn>.MasterContext ?? throw new CustomBasicException($"Nothing was registered for ICommandQuery for first type {typeof(TFirst)} and second type of {typeof(TSecond)} second type but the return type is {typeof(TReturn)}.  Try creating a source generator and register it");
         bool isClosed;
         isClosed = capture.CurrentConnection.State == ConnectionState.Closed;
         if (isClosed)

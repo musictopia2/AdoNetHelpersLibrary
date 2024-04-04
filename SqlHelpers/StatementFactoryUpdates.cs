@@ -7,32 +7,32 @@ public static class StatementFactoryUpdates
         All,
         Common
     }
-    internal static (string sqls, BasicList<ColumnModel> ParameterMappings) GetUpdateStatement<E>(E thisEntity, BasicList<UpdateFieldInfo> manuelList) where E : class, ISimpleDatabaseEntity
+    internal static (string sqls, BasicList<ColumnModel> ParameterMappings) GetUpdateStatement<E>(BasicList<UpdateFieldInfo> manuelList, SourceGeneratedMap map) where E : class, ISimpleDatabaseEntity
     {
         if (manuelList.Count == 0)
         {
             throw new CustomBasicException("If you are manually updating, you have to send at least one field to update");
         }
-        BasicList<ColumnModel> updateList = GetParameterMappings<E>(thisEntity, manuelList);
+        BasicList<ColumnModel> updateList = GetParameterMappings<E>(manuelList, map);
         return GetUpdateStatement(updateList);
     }
-    internal static (string sqls, BasicList<ColumnModel> ParameterMappings) GetUpdateStatement<E>(BasicList<UpdateEntity> manuelList) where E : class, ISimpleDatabaseEntity
+    internal static (string sqls, BasicList<ColumnModel> ParameterMappings) GetUpdateStatement<E>(BasicList<UpdateEntity> manuelList, SourceGeneratedMap map) where E : class, ISimpleDatabaseEntity
     {
         if (manuelList.Count == 0)
         {
             throw new CustomBasicException("If you are manually updating, you have to send at least one field to update");
         }
-        BasicList<ColumnModel> updateList = GetParameterMappings<E>(manuelList);
+        BasicList<ColumnModel> updateList = GetParameterMappings<E>(manuelList, map);
         return GetUpdateStatement(updateList);
     }
-    internal static (string sqls, BasicList<ColumnModel> ParameterMappings) GetUpdateStatement<E>(E thisEntity) where E : class, IUpdatableEntity
+    internal static (string sqls, BasicList<ColumnModel> ParameterMappings) GetUpdateStatement<E>(E thisEntity, SourceGeneratedMap map) where E : class, IUpdatableEntity
     {
-        BasicList<ColumnModel> updateList = GetParameterMappings(thisEntity);
+        BasicList<ColumnModel> updateList = GetParameterMappings(thisEntity, map);
         return GetUpdateStatement(updateList);
     }
-    internal static (string sqls, BasicList<ColumnModel> ParameterMappings) GetUpdateStatement<E>(E thisEntity, EnumUpdateCategory category) where E : class, ISimpleDatabaseEntity
+    internal static (string sqls, BasicList<ColumnModel> ParameterMappings) GetUpdateStatement<E>(E thisEntity, EnumUpdateCategory category, SourceGeneratedMap map) where E : class, ISimpleDatabaseEntity
     {
-        BasicList<ColumnModel> updateList = GetParameterMappings(thisEntity, category);
+        BasicList<ColumnModel> updateList = GetParameterMappings(thisEntity, category, map);
         return GetUpdateStatement(updateList);
     }
     private static (string sqls, BasicList<ColumnModel> ParameterMappings) GetUpdateStatement(BasicList<ColumnModel> updateList)
@@ -56,13 +56,12 @@ public static class StatementFactoryUpdates
         thisStr.Append(" where ID = @ID");
         return (thisStr.ToString(), updateList);
     }
-    private static BasicList<ColumnModel> GetParameterMappings<E>(BasicList<UpdateEntity> updateList) where E : class, ISimpleDatabaseEntity
+    private static BasicList<ColumnModel> GetParameterMappings<E>(BasicList<UpdateEntity> updateList ,SourceGeneratedMap map) where E : class, ISimpleDatabaseEntity
     {
         if (updateList.Count == 0)
         {
             return [];
         }
-        var map = TableMapGlobalClass<E>.GetMap();
         BasicList<ColumnModel> mapList = map.Columns;
         BasicList<ColumnModel> newList = [];
         updateList.ForEach(items =>
@@ -77,13 +76,12 @@ public static class StatementFactoryUpdates
         });
         return newList;
     }
-    private static BasicList<ColumnModel> GetParameterMappings<E>(E thisEntity, BasicList<UpdateFieldInfo> updateList) where E : class, ISimpleDatabaseEntity
+    private static BasicList<ColumnModel> GetParameterMappings<E>(BasicList<UpdateFieldInfo> updateList, SourceGeneratedMap map) where E : class, ISimpleDatabaseEntity
     {
         if (updateList.Count == 0)
         {
             return [];
         }
-        var map = TableMapGlobalClass<E>.GetMap(thisEntity);
         BasicList<ColumnModel> mapList = map.Columns;
         BasicList<ColumnModel> newList = [];
         updateList.ForEach(items =>
@@ -99,22 +97,21 @@ public static class StatementFactoryUpdates
         });
         return newList;
     }
-    private static BasicList<ColumnModel> GetParameterMappings<E>(E thisEntity) where E : class, IUpdatableEntity
+    private static BasicList<ColumnModel> GetParameterMappings<E>(E thisEntity, SourceGeneratedMap map) where E : class, IUpdatableEntity
     {
         BasicList<UpdateFieldInfo> updateList = [];
         BasicList<string> firstList = thisEntity.GetChanges();
         updateList.Append(firstList);
-        return GetParameterMappings(thisEntity, updateList);
+        return GetParameterMappings<E>(updateList, map);
     }
-    private static BasicList<ColumnModel> GetParameterMappings<E>(E thisEntity, EnumUpdateCategory category) where E : class, ISimpleDatabaseEntity
+    private static BasicList<ColumnModel> GetParameterMappings<E>(E thisEntity, EnumUpdateCategory category, SourceGeneratedMap map) where E : class, ISimpleDatabaseEntity
     {
         BasicList<UpdateFieldInfo> updateList = [];
         if (category == EnumUpdateCategory.Auto)
         {
-            return GetParameterMappings((IUpdatableEntity)thisEntity);
+            return GetParameterMappings((IUpdatableEntity)thisEntity, map);
         }
         //if i cannot send the parameter for the entity here, then will need another method for something else.
-        var map = TableMapGlobalClass<E>.GetMap(thisEntity);
         BasicList<ColumnModel> mapList = map.Columns;
         if (category == EnumUpdateCategory.Common)
         {

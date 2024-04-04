@@ -1,4 +1,4 @@
-﻿namespace DapperHelpersLibrary.Extensions;
+﻿namespace AdoNetHelpersLibrary.SqlExtensions;
 public static class GetOneItem
 {
     private static SourceGeneratedMap GetMap<E>()
@@ -8,7 +8,7 @@ public static class GetOneItem
     }
     public static R GetSingleObject<E, R>(this ICaptureCommandParameter capture, string property, BasicList<SortInfo> sortList, BasicList<ICondition>? conditions = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, ISimpleDatabaseEntity
-        where R: IParsable<R>
+        where R : IParsable<R>
     {
         EnumDatabaseCategory database = capture.Category;
         SourceGeneratedMap map = GetMap<E>();

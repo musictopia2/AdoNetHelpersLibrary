@@ -27,5 +27,4 @@ global using cs1 = CommonBasicLibraries.DatabaseHelpers.ConditionClasses.Conditi
 global using static AdoNetHelpersLibrary.SqlHelpers.StatementFactoryConditionsSingle;
 global using static AdoNetHelpersLibrary.SqlHelpers.StatementSelectFactoryJoin;
 global using static AdoNetHelpersLibrary.SqlExtensions.DeleteSimple;
-global using DapperHelpersLibrary.Extensions;
 global using static AdoNetHelpersLibrary.SqlExtensions.GetSimple;
