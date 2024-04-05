@@ -112,7 +112,7 @@ internal static class StatementSelectFactoryJoin
         return thisStr.ToString();
     }
     #endregion
-    #region #region With Conditions
+    #region With Conditions
     private static (string sqls, BasicList<ColumnModel> ParameterMappings) FinishConditionStatement(BasicList<ColumnModel> mapList, BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList, StringBuilder thisStr, EnumDatabaseCategory category, int howMany = 0)
     {
         var paramList = new BasicList<ColumnModel>();
@@ -190,6 +190,28 @@ internal static class StatementSelectFactoryJoin
         StringBuilder thisStr = new();
         StartList<E>(out BasicList<ColumnModel> mapList, out BasicList<string> joinList, out string tableName);
         AppendList<E, D1>(mapList, joinList, tableName, "b", isOneToOne);
+        thisStr.Append(GetSimpleSelectStatement(mapList, joinList, tableName, category, howMany));
+        return FinishConditionStatement(mapList, conditionList, sortList, thisStr, category, howMany);
+    }
+    public static (string sqls, BasicList<ColumnModel> ParameterMappings) GetConditionalStatement<E, D1, D2>(BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList, EnumDatabaseCategory category, int howMany = 0, bool isOneToOne = true)
+        where E : class, IJoinedEntity<D1>, ITableMapper<E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2: class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        StringBuilder thisStr = new();
+        StartList<E>(out BasicList<ColumnModel> mapList, out BasicList<string> joinList, out string tableName);
+        AppendList<E, D1>(mapList, joinList, tableName, "b", isOneToOne);
+        bool rets;
+        string thisName = D2.TableName; //hopefully works (?)
+        rets = E.HasForeignKey(thisName);
+        if (rets == true)
+        {
+            AppendList<E, D2>(mapList, joinList, tableName, "c", true);
+        }
+        else
+        {
+            AppendList<D1, D2>(mapList, joinList, tableName, "c", true, "b");
+        }
         thisStr.Append(GetSimpleSelectStatement(mapList, joinList, tableName, category, howMany));
         return FinishConditionStatement(mapList, conditionList, sortList, thisStr, category, howMany);
     }
