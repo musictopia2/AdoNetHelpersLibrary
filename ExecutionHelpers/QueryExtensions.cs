@@ -109,14 +109,19 @@ public static class QueryExtensions
         }
         return output;
     }
-    public static BasicList<TReturn> Query<TFirst, TSecond, TReturn>(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-       where TFirst : class, IJoinedEntity<TSecond>, ICommandQuery<TFirst, TSecond, TReturn>
-       where TSecond : class, ISimpleDatabaseEntity
-       where TReturn : class, ISimpleDatabaseEntity
-    {
-        CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
-        return Query<TFirst, TSecond, TReturn>(capture, commandDefinition, PrivateOneToOne);
-    }
+    //decided to attempt to not do automatically
+    //because we don't know if its one to one or one to many (?)
+
+
+
+    //public static BasicList<TReturn> Query<TFirst, TSecond, TReturn>(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+    //   where TFirst : class, IJoinedEntity<TSecond>, ICommandQuery<TFirst, TSecond, TReturn>
+    //   where TSecond : class, ISimpleDatabaseEntity
+    //   where TReturn : class, ISimpleDatabaseEntity
+    //{
+    //    CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
+    //    return Query<TFirst, TSecond, TReturn>(capture, commandDefinition, PrivateOneToOne);
+    //}
     public static BasicList<TReturn> Query<TFirst, TSecond, TReturn>(this ICaptureCommandParameter capture, string sql, Func<TFirst, TSecond?, TFirst> action, BasicList<DynamicParameter>? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         where TFirst : class, IJoinedEntity<TSecond>, ICommandQuery<TFirst, TSecond, TReturn>
         where TSecond : class, ISimpleDatabaseEntity
@@ -148,14 +153,14 @@ public static class QueryExtensions
         }
         return output;
     }
-    public static Task<BasicList<TReturn>> QueryAsync<TFirst, TSecond, TReturn>(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-       where TFirst : class, IJoinedEntity<TSecond>, ICommandQuery<TFirst, TSecond, TReturn>
-       where TSecond : class, ISimpleDatabaseEntity
-       where TReturn : class
-    {
-        CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
-        return QueryAsync<TFirst, TSecond, TReturn>(capture, command: commandDefinition, PrivateOneToOne);
-    }
+    //public static Task<BasicList<TReturn>> QueryAsync<TFirst, TSecond, TReturn>(this ICaptureCommandParameter capture, string sql, BasicList<DynamicParameter>? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+    //   where TFirst : class, IJoinedEntity<TSecond>, ICommandQuery<TFirst, TSecond, TReturn>
+    //   where TSecond : class, ISimpleDatabaseEntity
+    //   where TReturn : class
+    //{
+    //    CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
+    //    return QueryAsync<TFirst, TSecond, TReturn>(capture, command: commandDefinition, PrivateOneToOne);
+    //}
     public static async Task<BasicList<TReturn>> QueryAsync<TFirst, TSecond, TReturn>(this ICaptureCommandParameter capture, string sql, Func<TFirst, TSecond?, TFirst> action, BasicList<DynamicParameter>? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
        where TFirst : class, IJoinedEntity<TSecond>, ICommandQuery<TFirst, TSecond, TReturn>
        where TSecond : class, ISimpleDatabaseEntity

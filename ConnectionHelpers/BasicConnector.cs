@@ -1,4 +1,6 @@
-﻿namespace AdoNetHelpersLibrary.ConnectionHelpers;
+﻿using CommonBasicLibraries.DatabaseHelpers.EntityInterfaces;
+
+namespace AdoNetHelpersLibrary.ConnectionHelpers;
 public class BasicConnector : IConnector
 {
     #region Main Functions
@@ -131,6 +133,22 @@ public class BasicConnector : IConnector
     {
         await RunCustomConnectionAsync(action.Invoke);
     }
+    public void DoWork(Action<ICaptureCommandParameter, IDbTransaction> action, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
+    {
+        RunCustomConnection(capture =>
+        {
+            if (isolationLevel == IsolationLevel.Unspecified)
+            {
+                using IDbTransaction tran = capture.CurrentConnection.BeginTransaction();
+                action.Invoke(capture, tran);
+            }
+            else
+            {
+                IDbTransaction tran = capture.CurrentConnection.BeginTransaction(isolationLevel);
+                action.Invoke(capture, tran);
+            }
+        });
+    }
     public void DoBulkWork(Action<ICaptureCommandParameter, IDbTransaction> action, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
     {
         RunCustomConnection(capture =>
@@ -187,22 +205,7 @@ public class BasicConnector : IConnector
             afterWork?.Invoke(capture);
         });
     }
-    public void DoWork(Action<ICaptureCommandParameter, IDbTransaction> action, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
-    {
-        RunCustomConnection(capture =>
-        {
-            if (isolationLevel == IsolationLevel.Unspecified)
-            {
-                using IDbTransaction tran = capture.CurrentConnection.BeginTransaction();
-                action.Invoke(capture, tran);
-            }
-            else
-            {
-                IDbTransaction tran = capture.CurrentConnection.BeginTransaction(isolationLevel);
-                action.Invoke(capture, tran);
-            }
-        });
-    }
+    
     public async Task DoBulkWorkAsync<E>(Func<ICaptureCommandParameter, IDbTransaction, E, Task> action, BasicList<E> thisList, IsolationLevel isolationLevel = IsolationLevel.Unspecified,
         Func<ICaptureCommandParameter, Task>? beforeWork = null, Func<ICaptureCommandParameter, Task>? afterWork = null)
     {
@@ -693,7 +696,72 @@ public class BasicConnector : IConnector
         });
         return output;
     }
-
+    public E GetOneToMany<E, D1>(int id)
+        where E : class, IJoinedEntity<D1>, ITableMapper<E>, ICommandQuery<E, D1, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+    {
+        E output = default!;
+        RunCustomConnection(capture =>
+        {
+            output = capture.GetOneToMany<E, D1>(id);
+        });
+        return output;
+    }
+    public BasicList<E> GetOneToMany<E, D1>(BasicList<SortInfo>? sortList = null)
+        where E : class, IJoinedEntity<D1>, ITableMapper<E>, ICommandQuery<E, D1, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+    {
+        BasicList<E> output = [];
+        RunCustomConnection(capture =>
+        {
+            output = capture.GetOneToMany<E, D1>(sortList);
+        });
+        return output;
+    }
+    public BasicList<E> GetOneToMany<E, D1>(BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList = null)
+        where E : class, IJoinedEntity<D1>, ITableMapper<E>, ICommandQuery<E, D1, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+    {
+        BasicList<E> output = [];
+        RunCustomConnection(capture =>
+        {
+            output = capture.GetOneToMany<E, D1>(conditionList, sortList);
+        });
+        return output;
+    }
+    public async Task<BasicList<E>> GetOneToManyAsync<E, D1>(BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList = null)
+        where E : class, IJoinedEntity<D1>, ITableMapper<E>, ICommandQuery<E, D1, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+    {
+        BasicList<E> output = [];
+        await RunCustomConnectionAsync(async capture =>
+        {
+            output = await capture.GetOneToManyAsync<E, D1>(conditionList, sortList);
+        });
+        return output;
+    }
+    public async Task<E> GetOneToManyAsync<E, D1>(int id)
+        where E : class, IJoinedEntity<D1>, ITableMapper<E>, ICommandQuery<E, D1, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+    {
+        E output = default!;
+        await RunCustomConnectionAsync(async capture =>
+        {
+            output = await capture.GetOneToManyAsync<E, D1>(id);
+        });
+        return output;
+    }
+    public async Task<IEnumerable<E>> GetOneToManyAsync<E, D1>(BasicList<SortInfo>? sortList = null)
+        where E : class, IJoinedEntity<D1>, ITableMapper<E>, ICommandQuery<E, D1, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+    {
+        BasicList<E> output = [];
+        await RunCustomConnectionAsync(async capture =>
+        {
+            output = await capture.GetOneToManyAsync<E, D1>(sortList);
+        });
+        return output;
+    }
     public BasicList<E> GetDataList<E>()
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>, ICommandQuery<E>
     {

@@ -1,6 +1,39 @@
 ﻿namespace AdoNetHelpersLibrary.SqlExtensions;
 public static class GetConditionalJoinedTables
 {
+    #region 2 Tables One To Many 
+    public static BasicList<E> GetOneToMany<E, D1>(this ICaptureCommandParameter capture, BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList = null, Action<E, D1?>? action = null, IDbTransaction? thisTran = null, int? ConnectionTimeOut = null)
+        where E : class, IJoinedEntity<D1>, ITableMapper<E>, ICommandQuery<E ,D1, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+    {
+        return capture.PrivateOneToManySelectConditional(conditionList, sortList, action, thisTran, ConnectionTimeOut);
+    }
+    public async static Task<BasicList<E>> GetOneToManyAsync<E, D1>(this ICaptureCommandParameter capture, BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList = null, Action<E, D1?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+        where E : class, IJoinedEntity<D1>, ITableMapper<E>, ICommandQuery<E, D1, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+    {
+        EnumDatabaseCategory category = capture.Category;
+        var (sqls, ParameterMappings) = GetConditionalStatement<E, D1>(conditionList, sortList, false, category, 0);
+        CompleteSqlData data = new();
+        data.SQLStatement = sqls;
+        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional);
+        Dictionary<int, E> thisDict = [];
+        var thisList = await capture.QueryAsync<E, D1, E>(sqls, (Main, Detail) => GetOneToManyAction(Main, Detail, action, thisDict), data.Parameters, thisTran, commandTimeout: connectionTimeOut);
+        return thisList.Distinct().ToBasicList();
+    }
+    private static BasicList<E> PrivateOneToManySelectConditional<E, D1>(this ICaptureCommandParameter capture, BasicList<ICondition> ConditionList, BasicList<SortInfo>? sortList = null, Action<E, D1?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+        where E : class, IJoinedEntity<D1>, ITableMapper<E>, ICommandQuery<E, D1, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+    {
+        EnumDatabaseCategory category = capture.Category;
+        var (sqls, ParameterMappings) = GetConditionalStatement<E, D1>(ConditionList, sortList, false, category, 0);
+        CompleteSqlData data = new();
+        data.SQLStatement = sqls;
+        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional);
+        Dictionary<int, E> thisDict = [];
+        return capture.Query<E, D1, E>(sqls, (Main, Detail) => GetOneToManyAction(Main, Detail, action, thisDict), data.Parameters, thisTran, commandTimeout: connectionTimeOut).Distinct().ToBasicList();
+    }
+    #endregion
     #region joined 2 Tables
     public static BasicList<E> Get<E, D1>(this ICaptureCommandParameter capture, BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList = null, int HowMany = 0, Action<E, D1?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, ICommandQuery<E, D1, E>, IJoinedEntity<D1>, ITableMapper<E>
@@ -8,7 +41,7 @@ public static class GetConditionalJoinedTables
     {
         return capture.PrivateOneToOneSelectConditional(conditionList, sortList, HowMany, action, thisTran, connectionTimeOut);
     }
-    public async static Task<BasicList<E>> GetAsync<E, D1>(this ICaptureCommandParameter capture, BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList = null, int HowMany = 0, Action<E, D1?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null) 
+    public async static Task<BasicList<E>> GetAsync<E, D1>(this ICaptureCommandParameter capture, BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList = null, int HowMany = 0, Action<E, D1?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, ICommandQuery<E, D1, E>, IJoinedEntity<D1>, ITableMapper<E>
         where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
     {
@@ -17,7 +50,7 @@ public static class GetConditionalJoinedTables
         CompleteSqlData data = new();
         data.SQLStatement = sqls;
         PopulateSimple(ParameterMappings, data, EnumCategory.Conditional);
-        return await capture.QueryAsync<E, D1, E>(sqls, (Main, Detail) => PrivateOneToOne(Main, Detail, action), data.Parameters, thisTran, commandTimeout: connectionTimeOut);
+        return await capture.QueryAsync<E, D1, E>(sqls, (Main, Detail) => OneToOneAction(Main, Detail, action), data.Parameters, thisTran, commandTimeout: connectionTimeOut);
     }
     private static BasicList<E> PrivateOneToOneSelectConditional<E, D1>(this ICaptureCommandParameter capture, BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList = null, int HowMany = 0, Action<E, D1?>? action = null, IDbTransaction? thisTran = null, int? ConnectionTimeOut = null)
         where E : class, ICommandQuery<E, D1, E>, IJoinedEntity<D1>, ITableMapper<E>
@@ -28,7 +61,7 @@ public static class GetConditionalJoinedTables
         CompleteSqlData data = new();
         data.SQLStatement = sqls;
         PopulateSimple(ParameterMappings, data, EnumCategory.Conditional);
-        return capture.Query<E, D1, E>(sqls, (Main, Detail) => PrivateOneToOne(Main, Detail, action), data.Parameters, thisTran, commandTimeout: ConnectionTimeOut);
+        return capture.Query<E, D1, E>(sqls, (Main, Detail) => OneToOneAction(Main, Detail, action), data.Parameters, thisTran, commandTimeout: ConnectionTimeOut);
     }
     #endregion
 }
