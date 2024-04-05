@@ -3,7 +3,7 @@ internal static class StatementSelectFactoryJoin
 {
     #region No Conditions
     public static string GetSimpleSelectStatement<E, D1, D2>(BasicList<SortInfo>? sortList, EnumDatabaseCategory category, int howMany = 0)
-        where E : class, IJoinedEntity<D1>, ITableMapper<E>
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>
         where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
         where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
     {
