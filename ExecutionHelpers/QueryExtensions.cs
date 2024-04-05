@@ -192,4 +192,71 @@ public static class QueryExtensions
         }
         return output;
     }
+
+    public static BasicList<TReturn> Query<TFirst, TSecond, TThird, TReturn>(this ICaptureCommandParameter capture, string sql, Func<TFirst, TSecond?, TThird?, TFirst> action, BasicList<DynamicParameter>? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        where TFirst : class, ICommandQuery<TFirst, TSecond, TThird, TReturn>
+        where TSecond : class
+        where TThird: class
+        where TReturn : class
+    {
+        CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
+        return Query<TFirst, TSecond, TThird, TReturn>(capture, commandDefinition, action);
+    }
+    public static BasicList<TReturn> Query<TFirst, TSecond, TThird, TReturn>(this ICaptureCommandParameter capture, CommandDefinition command, Func<TFirst, TSecond?, TThird?, TFirst> action)
+        where TFirst : class, ICommandQuery<TFirst, TSecond, TThird, TReturn>
+        where TSecond : class
+        where TThird : class
+        where TReturn : class
+    {
+        bool isClosed;
+        isClosed = capture.CurrentConnection.State == ConnectionState.Closed;
+        if (isClosed)
+        {
+            capture.CurrentConnection.Open();
+        }
+        using IDbCommand fins = capture.GetCommand(command);
+        if (command.Transaction is not null)
+        {
+            fins.Transaction = command.Transaction;
+        }
+        var output = TFirst.Query(fins, action);
+        if (isClosed)
+        {
+            capture.CurrentConnection.Close();
+        }
+        return output;
+    }
+    public static async Task<BasicList<TReturn>> QueryAsync<TFirst, TSecond, TThird, TReturn>(this ICaptureCommandParameter capture, string sql, Func<TFirst, TSecond?, TThird?, TFirst> action, BasicList<DynamicParameter>? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+       where TFirst : class, ICommandQuery<TFirst, TSecond, TThird, TReturn>
+        where TSecond : class
+        where TThird : class
+        where TReturn : class
+    {
+        CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
+        return await QueryAsync<TFirst, TSecond, TThird, TReturn>(capture, commandDefinition, action);
+    }
+    public static async Task<BasicList<TReturn>> QueryAsync<TFirst, TSecond, TThird, TReturn>(this ICaptureCommandParameter capture, CommandDefinition command, Func<TFirst, TSecond?, TThird?, TFirst> action)
+      where TFirst : class, ICommandQuery<TFirst, TSecond, TThird, TReturn>
+        where TSecond : class
+        where TThird : class
+        where TReturn : class
+    {
+        bool isClosed;
+        isClosed = capture.CurrentConnection.State == ConnectionState.Closed;
+        if (isClosed)
+        {
+            capture.CurrentConnection.Open();
+        }
+        using IDbCommand fins = capture.GetCommand(command);
+        if (command.Transaction is not null)
+        {
+            fins.Transaction = command.Transaction;
+        }
+        var output = await TFirst.QueryAsync(fins, action);
+        if (isClosed)
+        {
+            capture.CurrentConnection.Close();
+        }
+        return output;
+    }
 }
