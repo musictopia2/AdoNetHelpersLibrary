@@ -843,6 +843,29 @@ public class BasicConnector : IConnector
         });
         return output;
     }
+    public BasicList<E> GetDataList<E, D1>()
+        where E : class, IJoinedEntity<D1>, ITableMapper<E>, ICommandQuery<E, D1, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+    {
+        BasicList<E> output = [];
+        DoWork(capture =>
+        {
+            output = capture.Get<E, D1>(sortList: []);
+        });
+        return output;
+    }
+    public BasicList<E> GetDataList<E, D1, D2>()
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        BasicList<E> output = [];
+        DoWork(capture =>
+        {
+            output = capture.Get<E, D1, D2>(sortList: []);
+        });
+        return output;
+    }
 
     /// <summary>
     /// this is when you just want to get all the data from the database.  most simple but no parameters this time.
@@ -856,6 +879,29 @@ public class BasicConnector : IConnector
         await DoWorkAsync(async capture =>
         {
             output = await capture.GetAsync<E>();
+        });
+        return output;
+    }
+    public async Task<BasicList<E>> GetDataListAsync<E, D1>()
+        where E : class, IJoinedEntity<D1>, ITableMapper<E>, ICommandQuery<E, D1, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+    {
+        BasicList<E> output = [];
+        await DoWorkAsync(async capture =>
+        {
+            output = await capture.GetAsync<E, D1>(sortList: []);
+        });
+        return output;
+    }
+    public async Task<BasicList<E>> GetDataListAsync<E, D1, D2>()
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        BasicList<E> output = [];
+        await DoWorkAsync(async capture =>
+        {
+            output = await capture.GetAsync<E, D1, D2>(sortList: []);
         });
         return output;
     }
