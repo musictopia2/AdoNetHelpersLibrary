@@ -212,7 +212,7 @@ internal static class StatementSelectFactoryJoin
         return FinishConditionStatement(mapList, conditionList, sortList, thisStr, category, howMany);
     }
     public static (string sqls, BasicList<ColumnModel> ParameterMappings) GetConditionalStatement<E, D1, D2>(BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList, EnumDatabaseCategory category, int howMany = 0, bool isOneToOne = true)
-        where E : class, IJoinedEntity<D1>, ITableMapper<E>
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>
         where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
         where D2: class, ISimpleDatabaseEntity, ITableMapper<D2>
     {
