@@ -1,6 +1,4 @@
-﻿using CommonBasicLibraries.DatabaseHelpers.EntityInterfaces;
-
-namespace AdoNetHelpersLibrary.ConnectionHelpers;
+﻿namespace AdoNetHelpersLibrary.ConnectionHelpers;
 public class BasicConnector : IConnector
 {
     #region Main Functions
@@ -205,7 +203,7 @@ public class BasicConnector : IConnector
             afterWork?.Invoke(capture);
         });
     }
-    
+
     public async Task DoBulkWorkAsync<E>(Func<ICaptureCommandParameter, IDbTransaction, E, Task> action, BasicList<E> thisList, IsolationLevel isolationLevel = IsolationLevel.Unspecified,
         Func<ICaptureCommandParameter, Task>? beforeWork = null, Func<ICaptureCommandParameter, Task>? afterWork = null)
     {
@@ -252,7 +250,7 @@ public class BasicConnector : IConnector
     }
     #endregion
     #region Unique Functions
-    public async Task UpdateListOnlyAsync<E>(BasicList<E> updateList, EnumUpdateCategory category = EnumUpdateCategory.Common, IsolationLevel isolationLevel = IsolationLevel.Unspecified) 
+    public async Task UpdateListOnlyAsync<E>(BasicList<E> updateList, EnumUpdateCategory category = EnumUpdateCategory.Common, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         await DoBulkWorkAsync(async (capture, tran, thisEntity) =>
@@ -261,12 +259,12 @@ public class BasicConnector : IConnector
             tran.Commit();
         }, updateList, isolationLevel);
     }
-    public async Task UpdateListAutoOnlyAsync<E>(BasicList<E> updateList, IsolationLevel isolationLevel = IsolationLevel.Unspecified) 
+    public async Task UpdateListAutoOnlyAsync<E>(BasicList<E> updateList, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
         where E : class, ISimpleDatabaseEntity, IUpdatableEntity, ITableMapper<E>
     {
         await UpdateListOnlyAsync(updateList, category: EnumUpdateCategory.Auto, isolationLevel);
     }
-    public async Task UpdateListOnlyAsync<E>(BasicList<E> updateList, BasicList<UpdateFieldInfo> manuelList, IsolationLevel isolationLevel = IsolationLevel.Unspecified) 
+    public async Task UpdateListOnlyAsync<E>(BasicList<E> updateList, BasicList<UpdateFieldInfo> manuelList, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         await DoBulkWorkAsync(async (capture, tran, thisEntity) =>
@@ -284,7 +282,7 @@ public class BasicConnector : IConnector
             tran.Commit();
         }, updateList, isolationLevel);
     }
-    public async Task UpdateCommonOnlyAsync<E>(E thisEntity) 
+    public async Task UpdateCommonOnlyAsync<E>(E thisEntity)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         await RunCustomConnectionAsync(async capture =>
@@ -292,7 +290,7 @@ public class BasicConnector : IConnector
             await capture.UpdateEntityAsync(thisEntity, EnumUpdateCategory.Common);
         });
     }
-    public async Task UpdateAllAsync<E>(E thisEntity) 
+    public async Task UpdateAllAsync<E>(E thisEntity)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         await RunCustomConnectionAsync(async capture =>
@@ -300,7 +298,7 @@ public class BasicConnector : IConnector
             await capture.UpdateEntityAsync(thisEntity, EnumUpdateCategory.All);
         });
     }
-    public void UpdateAll<E>(E thisEntity) 
+    public void UpdateAll<E>(E thisEntity)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         RunCustomConnection(capture =>
@@ -308,7 +306,7 @@ public class BasicConnector : IConnector
             capture.UpdateEntity(thisEntity, EnumUpdateCategory.All);
         });
     }
-    public void UpdateCommonOnly<E>(E thisEntity) 
+    public void UpdateCommonOnly<E>(E thisEntity)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         RunCustomConnection(capture =>
@@ -334,7 +332,7 @@ public class BasicConnector : IConnector
             tran.Commit();
         }, isolationLevel);
     }
-    public async Task<int> InsertAsync<E>(E entity) 
+    public async Task<int> InsertAsync<E>(E entity)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         int output = default;
@@ -344,7 +342,7 @@ public class BasicConnector : IConnector
         });
         return output;
     }
-    public int Insert<E>(E entity) 
+    public int Insert<E>(E entity)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         int output = default;
@@ -392,7 +390,7 @@ public class BasicConnector : IConnector
             }
         });
     }
-    public async Task AddEntityAsync<E>(E thisEntity) 
+    public async Task AddEntityAsync<E>(E thisEntity)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         await RunCustomConnectionAsync(async capture =>
@@ -400,7 +398,7 @@ public class BasicConnector : IConnector
             thisEntity.ID = await capture.InsertSingleAsync(thisEntity);
         });
     }
-    public void AddEntity<E>(E thisEntity) 
+    public void AddEntity<E>(E thisEntity)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         RunCustomConnection(capture =>
@@ -408,7 +406,7 @@ public class BasicConnector : IConnector
             thisEntity.ID = capture.InsertSingle(thisEntity);
         });
     }
-    public void DeleteOnly<E>(E thisEntity) 
+    public void DeleteOnly<E>(E thisEntity)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         RunCustomConnection(capture =>
@@ -424,7 +422,7 @@ public class BasicConnector : IConnector
             await capture.DeleteAsync(thisEntity);
         });
     }
-    public void DeleteOnly<E>(BasicList<ICondition> conditions) 
+    public void DeleteOnly<E>(BasicList<ICondition> conditions)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         RunCustomConnection(capture =>
@@ -432,7 +430,7 @@ public class BasicConnector : IConnector
             capture.Delete<E>(conditions);
         });
     }
-    public async Task DeleteOnlyAsync<E>(BasicList<ICondition> conditions) 
+    public async Task DeleteOnlyAsync<E>(BasicList<ICondition> conditions)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         await RunCustomConnectionAsync(async capture =>
@@ -440,7 +438,7 @@ public class BasicConnector : IConnector
             await capture.DeleteAsync<E>(conditions);
         });
     }
-    public async Task DeleteOnlyAsync<E>(int id) 
+    public async Task DeleteOnlyAsync<E>(int id)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         await RunCustomConnectionAsync(async capture =>
@@ -448,7 +446,7 @@ public class BasicConnector : IConnector
             await capture.DeleteAsync<E>(id);
         });
     }
-    public void DeleteOnly<E>(int id) 
+    public void DeleteOnly<E>(int id)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         RunCustomConnection(capture =>
@@ -492,7 +490,7 @@ public class BasicConnector : IConnector
             trans.Commit();
         }, isolationLevel);
     }
-    public bool Exists<E>(int id) 
+    public bool Exists<E>(int id)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         bool rets = false;
@@ -503,7 +501,7 @@ public class BasicConnector : IConnector
         });
         return rets;
     }
-    public bool Exists<E>(BasicList<ICondition> conditions) 
+    public bool Exists<E>(BasicList<ICondition> conditions)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
         bool rets = false;
@@ -560,7 +558,7 @@ public class BasicConnector : IConnector
         });
         return output;
     }
-    public async Task<BasicList<R>> GetObjectListAsync<E, R>(string property, BasicList<ICondition>? conditions = null, BasicList<SortInfo>? sortList = null, int howMany = 0) 
+    public async Task<BasicList<R>> GetObjectListAsync<E, R>(string property, BasicList<ICondition>? conditions = null, BasicList<SortInfo>? sortList = null, int howMany = 0)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>, ICommandQuery<E, R>
     {
         BasicList<R> output = [];
@@ -580,7 +578,7 @@ public class BasicConnector : IConnector
         });
         return output;
     }
-    public BasicList<E> Get<E>(BasicList<SortInfo>? sortList = null, int howMany = 0) 
+    public BasicList<E> Get<E>(BasicList<SortInfo>? sortList = null, int howMany = 0)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>, ICommandQuery<E>
     {
         BasicList<E> output = [];
@@ -590,7 +588,7 @@ public class BasicConnector : IConnector
         });
         return output;
     }
-    public async Task<E> GetAsync<E>(int id) 
+    public async Task<E> GetAsync<E>(int id)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>, ICommandQuery<E>
     {
         E output = default!;
@@ -610,7 +608,7 @@ public class BasicConnector : IConnector
         });
         return output;
     }
-    public BasicList<E> Get<E>(BasicList<ICondition> conditions, BasicList<SortInfo>? sortList = null, int howMany = 0) 
+    public BasicList<E> Get<E>(BasicList<ICondition> conditions, BasicList<SortInfo>? sortList = null, int howMany = 0)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>, ICommandQuery<E>
     {
         BasicList<E> output = [];
@@ -648,7 +646,7 @@ public class BasicConnector : IConnector
         BasicList<E> output = [];
         RunCustomConnection(capture =>
         {
-            output = capture.Get<E,  D1>(sortList, howMany);
+            output = capture.Get<E, D1>(sortList, howMany);
         });
         return output;
     }
@@ -751,7 +749,7 @@ public class BasicConnector : IConnector
         });
         return output;
     }
-    public async Task<IEnumerable<E>> GetOneToManyAsync<E, D1>(BasicList<SortInfo>? sortList = null)
+    public async Task<BasicList<E>> GetOneToManyAsync<E, D1>(BasicList<SortInfo>? sortList = null)
         where E : class, IJoinedEntity<D1>, ITableMapper<E>, ICommandQuery<E, D1, E>
         where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
     {
@@ -759,6 +757,79 @@ public class BasicConnector : IConnector
         await RunCustomConnectionAsync(async capture =>
         {
             output = await capture.GetOneToManyAsync<E, D1>(sortList);
+        });
+        return output;
+    }
+
+    public E Get<E, D1, D2>(int id)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        E output = default!;
+        RunCustomConnection(capture =>
+        {
+            output = capture.Get<E, D1, D2>(id);
+        });
+        return output;
+    }
+    public BasicList<E> Get<E, D1, D2>(BasicList<SortInfo> sortList, int howMany = 0)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        BasicList<E> output = [];
+        RunCustomConnection(capture =>
+        {
+            output = capture.Get<E, D1, D2>(sortList, howMany);
+        });
+        return output;
+    }
+    public BasicList<E> Get<E, D1, D2>(BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList = null, int howMany = 0)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        BasicList<E> output = [];
+        RunCustomConnection(capture =>
+        {
+            output = capture.Get<E, D1, D2>(conditionList, sortList, howMany);
+        });
+        return output;
+    }
+    public async Task<E> GetAsync<E, D1, D2>(int id)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        E output = default!;
+        await RunCustomConnectionAsync(async capture =>
+        {
+            output = await capture.GetAsync<E, D1, D2>(id);
+        });
+        return output;
+    }
+    public async Task<BasicList<E>> GetAsync<E, D1, D2>(BasicList<SortInfo> sortList, int howMany = 0)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        BasicList<E> output = [];
+        await RunCustomConnectionAsync(async capture =>
+        {
+            output = await capture.GetAsync<E, D1, D2>(sortList, howMany);
+        });
+        return output;
+    }
+    public async Task<BasicList<E>> GetAsync<E, D1, D2>(BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList = null, int howMany = 0)
+         where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+         where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+         where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        BasicList<E> output = [];
+        await RunCustomConnectionAsync(async capture =>
+        {
+            output = await capture.GetAsync<E, D1, D2>(conditionList, sortList, howMany);
         });
         return output;
     }
@@ -778,7 +849,7 @@ public class BasicConnector : IConnector
     /// </summary>
     /// <typeparam name="E"></typeparam>
     /// <returns></returns>
-    public async Task<BasicList<E>> GetDataListAsync<E>() 
+    public async Task<BasicList<E>> GetDataListAsync<E>()
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>, ICommandQuery<E>
     {
         BasicList<E> output = [];
