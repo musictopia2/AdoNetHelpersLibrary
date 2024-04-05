@@ -2,6 +2,24 @@
 internal static class StatementSelectFactoryJoin
 {
     #region No Conditions
+    public static string GetSimpleSelectStatement<E, D1, D2>(BasicList<SortInfo>? sortList, EnumDatabaseCategory category, int howMany = 0)
+        where E : class, IJoinedEntity<D1>, ITableMapper<E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        StartList<E>(out BasicList<ColumnModel> mapList, out BasicList<string> joinList, out string tableName);
+        AppendList<E, D1>(mapList, joinList, tableName, "b");
+        AppendList<E, D2>(mapList, joinList, tableName, "c");
+        string sqls = GetSimpleSelectStatement(mapList, joinList, tableName, category, howMany);
+        if (sortList == null)
+        {
+            return sqls;
+        }
+        StringBuilder thisStr = new(sqls);
+        thisStr.Append(GetSortStatement(mapList, sortList, false));
+        thisStr.Append(GetLimitSQLite(category, howMany));
+        return thisStr.ToString();
+    }
     private static void StartList<E>(out BasicList<ColumnModel> thisList, out BasicList<string> joinList, out string tableName) 
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>
     {
