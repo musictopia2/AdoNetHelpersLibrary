@@ -833,6 +833,81 @@ public class BasicConnector : IConnector
         });
         return output;
     }
+
+
+    public E GetOneToMany<E, D1, D2>(int id)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2: class, ISimpleDatabaseEntity ,ITableMapper<D2>
+    {
+        E output = default!;
+        RunCustomConnection(capture =>
+        {
+            output = capture.GetOneToMany<E, D1, D2>(id);
+        });
+        return output;
+    }
+    public BasicList<E> GetOneToMany<E, D1, D2>(BasicList<SortInfo>? sortList = null)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        BasicList<E> output = [];
+        RunCustomConnection(capture =>
+        {
+            output = capture.GetOneToMany<E, D1, D2>(sortList);
+        });
+        return output;
+    }
+    public BasicList<E> GetOneToMany<E, D1, D2>(BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList = null)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        BasicList<E> output = [];
+        RunCustomConnection(capture =>
+        {
+            output = capture.GetOneToMany<E, D1, D2>(conditionList, sortList);
+        });
+        return output;
+    }
+    public async Task<BasicList<E>> GetOneToManyAsync<E, D1, D2>(BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList = null)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        BasicList<E> output = [];
+        await RunCustomConnectionAsync(async capture =>
+        {
+            output = await capture.GetOneToManyAsync<E, D1, D2>(conditionList, sortList);
+        });
+        return output;
+    }
+    public async Task<E> GetOneToManyAsync<E, D1, D2>(int id)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        E output = default!;
+        await RunCustomConnectionAsync(async capture =>
+        {
+            output = await capture.GetOneToManyAsync<E, D1, D2>(id);
+        });
+        return output;
+    }
+    public async Task<BasicList<E>> GetOneToManyAsync<E, D1, D2>(BasicList<SortInfo>? sortList = null)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        BasicList<E> output = [];
+        await RunCustomConnectionAsync(async capture =>
+        {
+            output = await capture.GetOneToManyAsync<E, D1, D2>(sortList);
+        });
+        return output;
+    }
+
     public BasicList<E> GetDataList<E>()
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>, ICommandQuery<E>
     {

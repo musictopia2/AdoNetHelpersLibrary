@@ -290,7 +290,7 @@ public static class GetSimple
         string sqls = GetSimpleSelectStatement<E, D1, D2>(sortList, category, howMany);
         return await capture.QueryAsync<E, D1, D2, E>(sqls, (Main, Detail1, Detail2) => OneToOneAction(Main, Detail1, Detail2, action), null, thisTran, commandTimeout: connectionTimeOut);
     }
-    private static IEnumerable<E> PrivateGetOneToOneItem<E, D1, D2>(this ICaptureCommandParameter capture, int id, Action<E, D1?, D2?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+    private static BasicList<E> PrivateGetOneToOneItem<E, D1, D2>(this ICaptureCommandParameter capture, int id, Action<E, D1?, D2?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, IJoinedEntity<D1, D2>, ICommandQuery<E, D1, D2, E>, ITableMapper<E>
         where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
         where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
@@ -320,6 +320,101 @@ public static class GetSimple
         builder.Append(GetSimpleSelectStatement<E, D1, D2>(null, category, 0));
         BasicList<DynamicParameter> parameters = GetDynamicIDData(ref builder, id, true);
         return await capture.QueryAsync<E, D1, D2, E>(builder.ToString(), (Main, Detail1, Detail2) => OneToOneAction(Main, Detail1, Detail2, action), null, thisTran, commandTimeout: connectionTimeOut);
+    }
+    #endregion
+    #region Three Table One To Many
+    public static E GetOneToManyAction<E, D1, D2>(E main, D1? detail1, D2? detail2, Action<E, D1?, D2?>? action, Dictionary<int, E> thisDict)
+        where E : class, IJoinedEntity<D1, D2>
+        where D1 : class, ISimpleDatabaseEntity
+        where D2: class ,ISimpleDatabaseEntity
+    {
+        if (detail1 == null && detail2 is null)
+        {
+            action?.Invoke(main, detail1!, detail2!);
+            return main;
+        }
+        bool had = false;
+        if (thisDict.TryGetValue(main.ID, out E? thisTemp) == false)
+        {
+            thisTemp = main;
+            thisDict.Add(main.ID, thisTemp);
+            had = true;
+        }
+        thisTemp.AddRelationships(detail1!, detail2);
+        if (action != null && had == true)
+        {
+            action.Invoke(main, detail1!, detail2);
+        }
+        return thisTemp;
+    }
+    public static E GetOneToMany<E, D1, D2>(this ICaptureCommandParameter capture, int id, Action<E, D1?, D2?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+        where E : class, IJoinedEntity<D1, D2>, ICommandQuery<E, D1, D2, E>, ITableMapper<E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2: class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        IEnumerable<E> results = capture.PrivateGetOneToManyItem(id, action, thisTran, connectionTimeOut);
+        return results.Single();
+    }
+    public static BasicList<E> GetOneToMany<E, D1, D2>(this ICaptureCommandParameter capture, BasicList<SortInfo>? sortList = null, Action<E, D1?, D2?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2: class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        return capture.PrivateOneToManySelectAll(sortList, action, thisTran, connectionTimeOut);
+    }
+    public async static Task<E> GetOneToManyAsync<E, D1, D2>(this ICaptureCommandParameter capture, int id, Action<E, D1?, D2?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2: class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        BasicList<E> results = await capture.PrivateGetOneToManyItemAsync(id, action, thisTran, connectionTimeOut);
+        return results.Single();
+    }
+    public async static Task<BasicList<E>> GetOneToManyAsync<E, D1, D2>(this ICaptureCommandParameter capture, BasicList<SortInfo>? sortList, Action<E, D1?, D2?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        EnumDatabaseCategory category = capture.Category;
+        string sqls = GetSimpleSelectStatement<E, D1, D2>(sortList, category, 0); //somehow the 3 table did not accept the other argument (?)
+        Dictionary<int, E> thisDict = [];
+        var thisList = await capture.QueryAsync<E, D1, D2, E>(sqls, (Main, Detail1, Detail2) => GetOneToManyAction(Main, Detail1, Detail2, action, thisDict), null, thisTran, commandTimeout: connectionTimeOut);
+        return thisList.Distinct().ToBasicList();
+    }
+    private static BasicList<E> PrivateGetOneToManyItem<E, D1, D2>(this ICaptureCommandParameter capture, int id, Action<E, D1?, D2?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        EnumDatabaseCategory category = capture.Category;
+        StringBuilder builder = new();
+        builder.Append(GetSimpleSelectStatement<E, D1, D2>(null, category, 0));
+        BasicList<DynamicParameter> parameters = GetDynamicIDData(ref builder, id, true);
+        Dictionary<int, E> thisDict = [];
+        return capture.Query<E, D1, D2, E>(builder.ToString(), (Main, Detail1, Detail2) => GetOneToManyAction(Main, Detail1, Detail2, action, thisDict), parameters, thisTran, commandTimeout: connectionTimeOut).Distinct().ToBasicList();
+    }
+    private static BasicList<E> PrivateOneToManySelectAll<E, D1, D2>(this ICaptureCommandParameter capture, BasicList<SortInfo>? sortList = null, Action<E, D1?, D2?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        EnumDatabaseCategory category = capture.Category;
+        string sqls = GetSimpleSelectStatement<E, D1, D2>(sortList, category, 0);
+        Dictionary<int, E> thisDict = [];
+        return capture.Query<E, D1, D2, E>(sqls, (Main, Detail1, Detail2) => GetOneToManyAction(Main, Detail1, Detail2, action, thisDict), null, thisTran, commandTimeout: connectionTimeOut).Distinct().ToBasicList();
+    }
+    private async static Task<BasicList<E>> PrivateGetOneToManyItemAsync<E, D1, D2>(this ICaptureCommandParameter capture, int id, Action<E, D1?, D2?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+        where E : class, IJoinedEntity<D1, D2>, ITableMapper<E>, ICommandQuery<E, D1, D2, E>
+        where D1 : class, ISimpleDatabaseEntity, ITableMapper<D1>
+        where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
+    {
+        EnumDatabaseCategory category = capture.Category;
+        StringBuilder builder = new();
+        builder.Append(GetSimpleSelectStatement<E, D1, D2>(null, category, 0));
+        BasicList<DynamicParameter> parameters = GetDynamicIDData(ref builder, id, true);
+        Dictionary<int, E> thisDict = [];
+        var list = await capture.QueryAsync<E, D1, D2, E>(builder.ToString(), (Main, Detail1, Detail2) => GetOneToManyAction(Main, Detail1, Detail2, action, thisDict), parameters, thisTran, commandTimeout: connectionTimeOut);
+        return list.Distinct().ToBasicList();
     }
     #endregion
 }
