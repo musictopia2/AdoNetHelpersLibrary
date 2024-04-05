@@ -123,17 +123,17 @@ public static class QueryExtensions
     //    return Query<TFirst, TSecond, TReturn>(capture, commandDefinition, PrivateOneToOne);
     //}
     public static BasicList<TReturn> Query<TFirst, TSecond, TReturn>(this ICaptureCommandParameter capture, string sql, Func<TFirst, TSecond?, TFirst> action, BasicList<DynamicParameter>? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        where TFirst : class, IJoinedEntity<TSecond>, ICommandQuery<TFirst, TSecond, TReturn>
-        where TSecond : class, ISimpleDatabaseEntity
-        where TReturn : class, ISimpleDatabaseEntity
+        where TFirst : class, ICommandQuery<TFirst, TSecond, TReturn>
+        where TSecond : class
+        where TReturn : class
     {
         CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
         return Query<TFirst, TSecond, TReturn>(capture, commandDefinition, action);
     }
     public static BasicList<TReturn> Query<TFirst, TSecond, TReturn>(this ICaptureCommandParameter capture, CommandDefinition command, Func<TFirst, TSecond?, TFirst> action)
-        where TFirst : class, IJoinedEntity<TSecond>, ICommandQuery<TFirst, TSecond, TReturn>
-        where TSecond : class, ISimpleDatabaseEntity
-        where TReturn : class, ISimpleDatabaseEntity
+        where TFirst : class, ICommandQuery<TFirst, TSecond, TReturn>
+        where TSecond : class
+        where TReturn : class
     {
         bool isClosed;
         isClosed = capture.CurrentConnection.State == ConnectionState.Closed;
@@ -162,17 +162,17 @@ public static class QueryExtensions
     //    return QueryAsync<TFirst, TSecond, TReturn>(capture, command: commandDefinition, PrivateOneToOne);
     //}
     public static async Task<BasicList<TReturn>> QueryAsync<TFirst, TSecond, TReturn>(this ICaptureCommandParameter capture, string sql, Func<TFirst, TSecond?, TFirst> action, BasicList<DynamicParameter>? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-       where TFirst : class, IJoinedEntity<TSecond>, ICommandQuery<TFirst, TSecond, TReturn>
-       where TSecond : class, ISimpleDatabaseEntity
-       where TReturn : class
+       where TFirst : class, ICommandQuery<TFirst, TSecond, TReturn>
+        where TSecond : class
+        where TReturn : class
     {
         CommandDefinition commandDefinition = new(sql, param, transaction, commandTimeout, commandType);
         return await QueryAsync<TFirst, TSecond, TReturn>(capture, commandDefinition, action);
     }
     public static async Task<BasicList<TReturn>> QueryAsync<TFirst, TSecond, TReturn>(this ICaptureCommandParameter capture, CommandDefinition command, Func<TFirst, TSecond?, TFirst> action)
-        where TFirst : class, IJoinedEntity<TSecond>, ICommandQuery<TFirst, TSecond, TReturn>
-       where TSecond : class, ISimpleDatabaseEntity
-       where TReturn : class
+      where TFirst : class, ICommandQuery<TFirst, TSecond, TReturn>
+        where TSecond : class
+        where TReturn : class
     {
         bool isClosed;
         isClosed = capture.CurrentConnection.State == ConnectionState.Closed;
