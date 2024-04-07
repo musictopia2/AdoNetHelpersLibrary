@@ -11,6 +11,16 @@ public static class CommandReaderExtensions
         }
         return output;
     }
+    public async static Task<BasicList<int>> GetIntListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<int> output = [];
+        while (await reader.ReadAsync())
+        {
+            output.Add(ReadIntItem(reader));
+        }
+        return output;
+    }
     private static int ReadIntItem(DbDataReader reader)
     {
         int output = default;
@@ -34,6 +44,16 @@ public static class CommandReaderExtensions
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<int?> output = [];
         while (reader.Read())
+        {
+            output.Add(ReadNullableIntItem(reader));
+        }
+        return output;
+    }
+    public async static Task<BasicList<int?>> GetNullableIntListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<int?> output = [];
+        while (await reader.ReadAsync())
         {
             output.Add(ReadNullableIntItem(reader));
         }
@@ -67,6 +87,16 @@ public static class CommandReaderExtensions
         }
         return output;
     }
+    public async static Task<BasicList<string?>> GetStringListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<string?> output = [];
+        while (await reader.ReadAsync())
+        {
+            output.Add(ReadStringItem(reader));
+        }
+        return output;
+    }
     private static string? ReadStringItem(DbDataReader reader)
     {
         string? output = default;
@@ -90,6 +120,16 @@ public static class CommandReaderExtensions
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<bool> output = [];
         while (reader.Read())
+        {
+            output.Add(ReadBoolItem(reader));
+        }
+        return output;
+    }
+    public async static Task<BasicList<bool>> GetBoolListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<bool> output = [];
+        while (await reader.ReadAsync())
         {
             output.Add(ReadBoolItem(reader));
         }
@@ -123,6 +163,16 @@ public static class CommandReaderExtensions
         }
         return output;
     }
+    public async static Task<BasicList<bool?>> GetNullableBoolListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<bool?> output = [];
+        while (await reader.ReadAsync())
+        {
+            output.Add(ReadNullableBoolItem(reader));
+        }
+        return output;
+    }
     private static bool? ReadNullableBoolItem(DbDataReader reader)
     {
         bool output = default;
@@ -146,6 +196,16 @@ public static class CommandReaderExtensions
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<decimal> output = [];
         while (reader.Read())
+        {
+            output.Add(ReadDecimalItem(reader));
+        }
+        return output;
+    }
+    public async static Task<BasicList<decimal>> GetDecimalListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<decimal> output = [];
+        while (await reader.ReadAsync())
         {
             output.Add(ReadDecimalItem(reader));
         }
@@ -179,6 +239,16 @@ public static class CommandReaderExtensions
         }
         return output;
     }
+    public async static Task<BasicList<decimal?>> GetNullableDecimalListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<decimal?> output = [];
+        while (await reader.ReadAsync())
+        {
+            output.Add(ReadNullableDecimalItem(reader));
+        }
+        return output;
+    }
     private static decimal? ReadNullableDecimalItem(DbDataReader reader)
     {
         decimal output = default;
@@ -202,6 +272,16 @@ public static class CommandReaderExtensions
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<double> output = [];
         while (reader.Read())
+        {
+            output.Add(ReadDoubleItem(reader));
+        }
+        return output;
+    }
+    public async static Task<BasicList<double>> GetDoubleListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<double> output = [];
+        while (await reader.ReadAsync())
         {
             output.Add(ReadDoubleItem(reader));
         }
@@ -235,6 +315,16 @@ public static class CommandReaderExtensions
         }
         return output;
     }
+    public async static Task<BasicList<double?>> GetNullableDoubleListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<double?> output = [];
+        while (await reader.ReadAsync())
+        {
+            output.Add(ReadNullableDoubleItem(reader));
+        }
+        return output;
+    }
     private static double? ReadNullableDoubleItem(DbDataReader reader)
     {
         double output = default;
@@ -258,6 +348,16 @@ public static class CommandReaderExtensions
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<float> output = [];
         while (reader.Read())
+        {
+            output.Add(ReadFloatItem(reader));
+        }
+        return output;
+    }
+    public async static Task<BasicList<float>> GetFloatListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<float> output = [];
+        while (await reader.ReadAsync())
         {
             output.Add(ReadFloatItem(reader));
         }
@@ -291,6 +391,16 @@ public static class CommandReaderExtensions
         }
         return output;
     }
+    public async static Task<BasicList<float?>> GetNullableFloatListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<float?> output = [];
+        while (await reader.ReadAsync())
+        {
+            output.Add(ReadNullableFloatItem(reader));
+        }
+        return output;
+    }
     private static float? ReadNullableFloatItem(DbDataReader reader)
     {
         float output = default;
@@ -314,6 +424,16 @@ public static class CommandReaderExtensions
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<DateTime> output = [];
         while (reader.Read())
+        {
+            output.Add(ReadDateTimeItem(reader));
+        }
+        return output;
+    }
+    public async static Task<BasicList<DateTime>> GetDateTimeListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<DateTime> output = [];
+        while (await reader.ReadAsync())
         {
             output.Add(ReadDateTimeItem(reader));
         }
@@ -347,6 +467,16 @@ public static class CommandReaderExtensions
         }
         return output;
     }
+    public async static Task<BasicList<DateTime?>> GetNullableDateTimeListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<DateTime?> output = [];
+        while (await reader.ReadAsync())
+        {
+            output.Add(ReadNullableDateTimeItem(reader));
+        }
+        return output;
+    }
     private static DateTime? ReadNullableDateTimeItem(DbDataReader reader)
     {
         DateTime output = default;
@@ -375,6 +505,16 @@ public static class CommandReaderExtensions
         }
         return output;
     }
+    public async static Task<BasicList<DateOnly>> GetDateOnlyListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<DateOnly> output = [];
+        while (await reader.ReadAsync())
+        {
+            output.Add(ReadDateOnlyItem(reader));
+        }
+        return output;
+    }
     private static DateOnly ReadDateOnlyItem(DbDataReader reader)
     {
         DateOnly output = default;
@@ -391,15 +531,14 @@ public static class CommandReaderExtensions
         {
             DateTime date = DataReaderExtensions.GetDateTime(reader, list.Single().ColumnName);
             output = new(date.Year, date.Month, date.Day);
-            //output = DataReaderExtensions.GetInt32(reader, list.Single().ColumnName);
         }
         return output;
     }
-    public static BasicList<DateOnly?> GetNullableDateOnlyList(this IDbCommand command)
+    public async static Task<BasicList<DateOnly?>> GetNullableDateOnlyListAsync(this IDbCommand command)
     {
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<DateOnly?> output = [];
-        while (reader.Read())
+        while (await reader.ReadAsync())
         {
             output.Add(ReadNullableDateOnlyItem(reader));
         }
@@ -435,6 +574,16 @@ public static class CommandReaderExtensions
         }
         return output;
     }
+    public async static Task<BasicList<TimeOnly>> GetTimeOnlyListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<TimeOnly> output = [];
+        while (await reader.ReadAsync())
+        {
+            output.Add(ReadTimeOnlyItem(reader));
+        }
+        return output;
+    }
     private static TimeOnly ReadTimeOnlyItem(DbDataReader reader)
     {
         TimeOnly output = default;
@@ -459,6 +608,16 @@ public static class CommandReaderExtensions
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<TimeOnly?> output = [];
         while (reader.Read())
+        {
+            output.Add(ReadNullableTimeOnlyItem(reader));
+        }
+        return output;
+    }
+    public async static Task<BasicList<TimeOnly?>> GetNullableTimeOnlyListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<TimeOnly?> output = [];
+        while (await reader.ReadAsync())
         {
             output.Add(ReadNullableTimeOnlyItem(reader));
         }
@@ -493,6 +652,16 @@ public static class CommandReaderExtensions
         }
         return output;
     }
+    public async static Task<BasicList<char>> GetCharListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<char> output = [];
+        while (await reader.ReadAsync())
+        {
+            output.Add(ReadCharItem(reader));
+        }
+        return output;
+    }
     private static char ReadCharItem(DbDataReader reader)
     {
         char output = default;
@@ -517,6 +686,16 @@ public static class CommandReaderExtensions
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<char?> output = [];
         while (reader.Read())
+        {
+            output.Add(ReadNullableCharItem(reader));
+        }
+        return output;
+    }
+    public async static Task<BasicList<char?>> GetNullableCharListAsync(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<char?> output = [];
+        while (await reader.ReadAsync())
         {
             output.Add(ReadNullableCharItem(reader));
         }
