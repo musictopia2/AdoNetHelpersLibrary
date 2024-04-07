@@ -534,6 +534,16 @@ public static class CommandReaderExtensions
         }
         return output;
     }
+    public static BasicList<DateOnly?> GetNullableDateOnlyList(this IDbCommand command)
+    {
+        using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
+        BasicList<DateOnly?> output = [];
+        while (reader.Read())
+        {
+            output.Add(ReadNullableDateOnlyItem(reader));
+        }
+        return output;
+    }
     public async static Task<BasicList<DateOnly?>> GetNullableDateOnlyListAsync(this IDbCommand command)
     {
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
