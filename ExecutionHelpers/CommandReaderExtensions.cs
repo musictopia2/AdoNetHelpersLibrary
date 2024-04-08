@@ -419,27 +419,27 @@ public static class CommandReaderExtensions
         }
         return output;
     }
-    public static BasicList<DateTime> GetDateTimeList(this IDbCommand command)
+    public static BasicList<DateTime> GetDateTimeList(this IDbCommand command, EnumDatabaseCategory category)
     {
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<DateTime> output = [];
         while (reader.Read())
         {
-            output.Add(ReadDateTimeItem(reader));
+            output.Add(ReadDateTimeItem(reader, category));
         }
         return output;
     }
-    public async static Task<BasicList<DateTime>> GetDateTimeListAsync(this IDbCommand command)
+    public async static Task<BasicList<DateTime>> GetDateTimeListAsync(this IDbCommand command, EnumDatabaseCategory category)
     {
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<DateTime> output = [];
         while (await reader.ReadAsync())
         {
-            output.Add(ReadDateTimeItem(reader));
+            output.Add(ReadDateTimeItem(reader, category));
         }
         return output;
     }
-    private static DateTime ReadDateTimeItem(DbDataReader reader)
+    private static DateTime ReadDateTimeItem(DbDataReader reader, EnumDatabaseCategory category)
     {
         DateTime output = default;
         var list = DbDataReaderExtensions.GetColumnSchema(reader);
@@ -453,31 +453,39 @@ public static class CommandReaderExtensions
         }
         if (DataReaderExtensions.IsDBNull(reader, list.Single().ColumnName) == false)
         {
-            output = DataReaderExtensions.GetDateTime(reader, list.Single().ColumnName);
+            if (category == EnumDatabaseCategory.SQLite)
+            {
+                string dateUsed = DataReaderExtensions.GetString(reader, list.Single().ColumnName);
+                output = DateTime.Parse(dateUsed);
+            }
+            else
+            {
+                output = DataReaderExtensions.GetDateTime(reader, list.Single().ColumnName);
+            }
         }
         return output;
     }
-    public static BasicList<DateTime?> GetNullableDateTimeList(this IDbCommand command)
+    public static BasicList<DateTime?> GetNullableDateTimeList(this IDbCommand command, EnumDatabaseCategory category)
     {
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<DateTime?> output = [];
         while (reader.Read())
         {
-            output.Add(ReadNullableDateTimeItem(reader));
+            output.Add(ReadNullableDateTimeItem(reader, category));
         }
         return output;
     }
-    public async static Task<BasicList<DateTime?>> GetNullableDateTimeListAsync(this IDbCommand command)
+    public async static Task<BasicList<DateTime?>> GetNullableDateTimeListAsync(this IDbCommand command, EnumDatabaseCategory category)
     {
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<DateTime?> output = [];
         while (await reader.ReadAsync())
         {
-            output.Add(ReadNullableDateTimeItem(reader));
+            output.Add(ReadNullableDateTimeItem(reader, category));
         }
         return output;
     }
-    private static DateTime? ReadNullableDateTimeItem(DbDataReader reader)
+    private static DateTime? ReadNullableDateTimeItem(DbDataReader reader, EnumDatabaseCategory category)
     {
         DateTime output = default;
         var list = DbDataReaderExtensions.GetColumnSchema(reader);
@@ -491,31 +499,40 @@ public static class CommandReaderExtensions
         }
         if (DataReaderExtensions.IsDBNull(reader, list.Single().ColumnName) == false)
         {
-            output = DataReaderExtensions.GetDateTime(reader, list.Single().ColumnName);
+            if (category == EnumDatabaseCategory.SQLite)
+            {
+                string temp = DataReaderExtensions.GetString(reader, list.Single().ColumnName);
+                output = DateTime.Parse(temp);
+            }
+            else
+            {
+                output = DataReaderExtensions.GetDateTime(reader, list.Single().ColumnName);
+            }
+            
         }
         return output;
     }
-    public static BasicList<DateOnly> GetDateOnlyList(this IDbCommand command)
+    public static BasicList<DateOnly> GetDateOnlyList(this IDbCommand command, EnumDatabaseCategory category)
     {
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<DateOnly> output = [];
         while (reader.Read())
         {
-            output.Add(ReadDateOnlyItem(reader));
+            output.Add(ReadDateOnlyItem(reader, category));
         }
         return output;
     }
-    public async static Task<BasicList<DateOnly>> GetDateOnlyListAsync(this IDbCommand command)
+    public async static Task<BasicList<DateOnly>> GetDateOnlyListAsync(this IDbCommand command, EnumDatabaseCategory category)
     {
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<DateOnly> output = [];
         while (await reader.ReadAsync())
         {
-            output.Add(ReadDateOnlyItem(reader));
+            output.Add(ReadDateOnlyItem(reader, category));
         }
         return output;
     }
-    private static DateOnly ReadDateOnlyItem(DbDataReader reader)
+    private static DateOnly ReadDateOnlyItem(DbDataReader reader, EnumDatabaseCategory category)
     {
         DateOnly output = default;
         var list = DbDataReaderExtensions.GetColumnSchema(reader);
@@ -529,32 +546,40 @@ public static class CommandReaderExtensions
         }
         if (DataReaderExtensions.IsDBNull(reader, list.Single().ColumnName) == false)
         {
-            DateTime date = DataReaderExtensions.GetDateTime(reader, list.Single().ColumnName);
-            output = new(date.Year, date.Month, date.Day);
+            if (category == EnumDatabaseCategory.SQLite)
+            {
+                string temp = DataReaderExtensions.GetString(reader, list.Single().ColumnName);
+                output = DateOnly.Parse(temp);
+            }
+            else
+            {
+                DateTime date = DataReaderExtensions.GetDateTime(reader, list.Single().ColumnName);
+                output = new(date.Year, date.Month, date.Day);
+            }
         }
         return output;
     }
-    public static BasicList<DateOnly?> GetNullableDateOnlyList(this IDbCommand command)
+    public static BasicList<DateOnly?> GetNullableDateOnlyList(this IDbCommand command, EnumDatabaseCategory category)
     {
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<DateOnly?> output = [];
         while (reader.Read())
         {
-            output.Add(ReadNullableDateOnlyItem(reader));
+            output.Add(ReadNullableDateOnlyItem(reader, category));
         }
         return output;
     }
-    public async static Task<BasicList<DateOnly?>> GetNullableDateOnlyListAsync(this IDbCommand command)
+    public async static Task<BasicList<DateOnly?>> GetNullableDateOnlyListAsync(this IDbCommand command, EnumDatabaseCategory category)
     {
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<DateOnly?> output = [];
         while (await reader.ReadAsync())
         {
-            output.Add(ReadNullableDateOnlyItem(reader));
+            output.Add(ReadNullableDateOnlyItem(reader, category));
         }
         return output;
     }
-    private static DateOnly? ReadNullableDateOnlyItem(DbDataReader reader)
+    private static DateOnly? ReadNullableDateOnlyItem(DbDataReader reader, EnumDatabaseCategory category)
     {
         DateOnly output = default;
         var list = DbDataReaderExtensions.GetColumnSchema(reader);
@@ -568,33 +593,41 @@ public static class CommandReaderExtensions
         }
         if (DataReaderExtensions.IsDBNull(reader, list.Single().ColumnName) == false)
         {
-            DateTime date = DataReaderExtensions.GetDateTime(reader, list.Single().ColumnName);
-            output = new(date.Year, date.Month, date.Day);
+            if (category == EnumDatabaseCategory.SQLite)
+            {
+                string temp = DataReaderExtensions.GetString(reader, list.Single().ColumnName);
+                output = DateOnly.Parse(temp);
+            }
+            else
+            {
+                DateTime date = DataReaderExtensions.GetDateTime(reader, list.Single().ColumnName);
+                output = new(date.Year, date.Month, date.Day);
+            }
             //output = DataReaderExtensions.GetInt32(reader, list.Single().ColumnName);
         }
         return output;
     }
-    public static BasicList<TimeOnly> GetTimeOnlyList(this IDbCommand command)
+    public static BasicList<TimeOnly> GetTimeOnlyList(this IDbCommand command, EnumDatabaseCategory category)
     {
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<TimeOnly> output = [];
         while (reader.Read())
         {
-            output.Add(ReadTimeOnlyItem(reader));
+            output.Add(ReadTimeOnlyItem(reader, category));
         }
         return output;
     }
-    public async static Task<BasicList<TimeOnly>> GetTimeOnlyListAsync(this IDbCommand command)
+    public async static Task<BasicList<TimeOnly>> GetTimeOnlyListAsync(this IDbCommand command, EnumDatabaseCategory category)
     {
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<TimeOnly> output = [];
         while (await reader.ReadAsync())
         {
-            output.Add(ReadTimeOnlyItem(reader));
+            output.Add(ReadTimeOnlyItem(reader, category));
         }
         return output;
     }
-    private static TimeOnly ReadTimeOnlyItem(DbDataReader reader)
+    private static TimeOnly ReadTimeOnlyItem(DbDataReader reader, EnumDatabaseCategory category)
     {
         TimeOnly output = default;
         var list = DbDataReaderExtensions.GetColumnSchema(reader);
@@ -608,32 +641,40 @@ public static class CommandReaderExtensions
         }
         if (DataReaderExtensions.IsDBNull(reader, list.Single().ColumnName) == false)
         {
-            DateTime date = DataReaderExtensions.GetDateTime(reader, list.Single().ColumnName);
-            output = new(date.Hour, date.Minute, date.Second, date.Millisecond);
+            if (category == EnumDatabaseCategory.SQLite)
+            {
+                string temp = DataReaderExtensions.GetString(reader, list.Single().ColumnName);
+                output = TimeOnly.Parse(temp);
+            }
+            else
+            {
+                DateTime date = DataReaderExtensions.GetDateTime(reader, list.Single().ColumnName);
+                output = new(date.Hour, date.Minute, date.Second, date.Millisecond);
+            }
         }
         return output;
     }
-    public static BasicList<TimeOnly?> GetNullableTimeOnlyList(this IDbCommand command)
+    public static BasicList<TimeOnly?> GetNullableTimeOnlyList(this IDbCommand command, EnumDatabaseCategory category)
     {
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<TimeOnly?> output = [];
         while (reader.Read())
         {
-            output.Add(ReadNullableTimeOnlyItem(reader));
+            output.Add(ReadNullableTimeOnlyItem(reader, category));
         }
         return output;
     }
-    public async static Task<BasicList<TimeOnly?>> GetNullableTimeOnlyListAsync(this IDbCommand command)
+    public async static Task<BasicList<TimeOnly?>> GetNullableTimeOnlyListAsync(this IDbCommand command, EnumDatabaseCategory category)
     {
         using DbDataReader? reader = command.ExecuteReader() as DbDataReader ?? throw new CustomBasicException("No reader found");
         BasicList<TimeOnly?> output = [];
         while (await reader.ReadAsync())
         {
-            output.Add(ReadNullableTimeOnlyItem(reader));
+            output.Add(ReadNullableTimeOnlyItem(reader, category));
         }
         return output;
     }
-    private static TimeOnly? ReadNullableTimeOnlyItem(DbDataReader reader)
+    private static TimeOnly? ReadNullableTimeOnlyItem(DbDataReader reader, EnumDatabaseCategory category)
     {
         TimeOnly output = default;
         var list = DbDataReaderExtensions.GetColumnSchema(reader);
@@ -647,8 +688,16 @@ public static class CommandReaderExtensions
         }
         if (DataReaderExtensions.IsDBNull(reader, list.Single().ColumnName) == false)
         {
-            DateTime date = DataReaderExtensions.GetDateTime(reader, list.Single().ColumnName);
-            output = new(date.Hour, date.Minute, date.Second, date.Millisecond);
+            if (category == EnumDatabaseCategory.SQLite)
+            {
+                string temp = DataReaderExtensions.GetString(reader, list.Single().ColumnName);
+                output = TimeOnly.Parse(temp);
+            }
+            else
+            {
+                DateTime date = DataReaderExtensions.GetDateTime(reader, list.Single().ColumnName);
+                output = new(date.Hour, date.Minute, date.Second, date.Millisecond);
+            }
         }
         return output;
     }

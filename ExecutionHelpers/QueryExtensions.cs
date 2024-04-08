@@ -21,7 +21,7 @@ public static class QueryExtensions
         {
             fins.Transaction = command.Transaction;
         }
-        var output = E.Query(fins);
+        var output = E.Query(fins, capture.Category);
         if (isClosed)
         {
             capture.CurrentConnection.Close();
@@ -48,7 +48,7 @@ public static class QueryExtensions
         {
             fins.Transaction = command.Transaction;
         }
-        var output = await E.QueryAsync(fins);
+        var output = await E.QueryAsync(fins, capture.Category);
         if (isClosed)
         {
             capture.CurrentConnection.Close();
@@ -75,7 +75,7 @@ public static class QueryExtensions
         {
             fins.Transaction = command.Transaction;
         }
-        var output = E.Query(fins);
+        var output = E.Query(fins, capture.Category);
         if (isClosed)
         {
             capture.CurrentConnection.Close();
@@ -102,7 +102,7 @@ public static class QueryExtensions
         {
             fins.Transaction = command.Transaction;
         }
-        var output = await E.QueryAsync(fins);
+        var output = await E.QueryAsync(fins, capture.Category);
         if (isClosed)
         {
             capture.CurrentConnection.Close();
@@ -146,7 +146,7 @@ public static class QueryExtensions
         {
             fins.Transaction = command.Transaction;
         }
-        var output = TFirst.Query(fins, action);
+        var output = TFirst.Query(fins, action, capture.Category);
         if (isClosed)
         {
             capture.CurrentConnection.Close();
@@ -185,7 +185,7 @@ public static class QueryExtensions
         {
             fins.Transaction = command.Transaction;
         }
-        var output = await TFirst.QueryAsync(fins, action);
+        var output = await TFirst.QueryAsync(fins, action, capture.Category);
         if (isClosed)
         {
             capture.CurrentConnection.Close();
@@ -219,7 +219,7 @@ public static class QueryExtensions
         {
             fins.Transaction = command.Transaction;
         }
-        var output = TFirst.Query(fins, action);
+        var output = TFirst.Query(fins, action, capture.Category);
         if (isClosed)
         {
             capture.CurrentConnection.Close();
@@ -252,7 +252,7 @@ public static class QueryExtensions
         {
             fins.Transaction = command.Transaction;
         }
-        var output = await TFirst.QueryAsync(fins, action);
+        var output = await TFirst.QueryAsync(fins, action, capture.Category);
         if (isClosed)
         {
             capture.CurrentConnection.Close();
