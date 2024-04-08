@@ -3,7 +3,6 @@ public static class GetOneItem
 {
     public static R GetSingleObject<E, R>(this ICaptureCommandParameter capture, string property, BasicList<SortInfo> sortList, BasicList<ICondition>? conditions = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, ISimpleDatabaseEntity, ICommandExecuteScalar<E, R>, ITableMapper<E>
-        where R : IParsable<R>
     {
         EnumDatabaseCategory database = capture.Category;
         SourceGeneratedMap map = E.GetTableMap();
@@ -16,9 +15,8 @@ public static class GetOneItem
         }
         return capture.ExecuteScalar<E, R>(thisData, thisTran, connectionTimeOut)!;
     }
-    public static async Task<R?> GetSingleObjectAsync<E, R>(this ICaptureCommandParameter capture, string property, BasicList<SortInfo> sortList, BasicList<ICondition>? conditions = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+    public static async Task<R> GetSingleObjectAsync<E, R>(this ICaptureCommandParameter capture, string property, BasicList<SortInfo> sortList, BasicList<ICondition>? conditions = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, ISimpleDatabaseEntity, ICommandExecuteScalar<E, R>, ITableMapper<E>
-        where R : IParsable<R>
     {
         EnumDatabaseCategory database = capture.Category;
         SourceGeneratedMap map = E.GetTableMap();
@@ -29,7 +27,12 @@ public static class GetOneItem
         {
             PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
         }
-        return await capture.ExecuteScalarAsync<E, R>(thisData, thisTran!, connectionTimeOut);
+        var output = await capture.ExecuteScalarAsync<E, R>(thisData, thisTran!, connectionTimeOut)!;
+        if (output != null)
+        {
+            return output;
+        }
+        return default!;
     }
     public static BasicList<R> GetObjectList<E, R>(this ICaptureCommandParameter capture, string property, BasicList<ICondition>? conditions = null, BasicList<SortInfo>? sortList = null, int howMany = 0, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, ISimpleDatabaseEntity, ICommandQuery<E, R>, ITableMapper<E>

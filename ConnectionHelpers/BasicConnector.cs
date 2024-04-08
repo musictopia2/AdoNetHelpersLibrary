@@ -515,7 +515,6 @@ public class BasicConnector : IConnector
     #region Direct To Extensions For Getting
     public R GetSingleObject<E, R>(string property, int id)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>, ICommandExecuteScalar<E, R>
-        where R : IParsable<R>
     {
         R output = default!;
         RunCustomConnection(capture =>
@@ -526,9 +525,20 @@ public class BasicConnector : IConnector
         });
         return output;
     }
+    public async Task<R> GetSingleObjectAsync<E, R>(string property, int id)
+        where E : class, ISimpleDatabaseEntity, ITableMapper<E>, ICommandExecuteScalar<E, R>
+    {
+        R output = default!;
+        await RunCustomConnectionAsync(async capture =>
+        {
+            var conditions = StartConditionWithID(id);
+
+            output = await capture.GetSingleObjectAsync<E, R>(property, [], conditions);
+        });
+        return output;
+    }
     public R GetSingleObject<E, R>(string property, BasicList<SortInfo> sortList, BasicList<ICondition>? conditions = null)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>, ICommandExecuteScalar<E, R>
-        where R : IParsable<R>
     {
         R output = default!;
         RunCustomConnection(capture =>
@@ -539,7 +549,6 @@ public class BasicConnector : IConnector
     }
     public async Task<R?> GetSingleObjectAsync<E, R>(string property, BasicList<SortInfo> sortList, BasicList<ICondition>? conditions = null)
         where E : class, ISimpleDatabaseEntity, ITableMapper<E>, ICommandExecuteScalar<E, R>
-        where R : IParsable<R>
     {
         R? output = default!;
         await RunCustomConnectionAsync(async capture =>
