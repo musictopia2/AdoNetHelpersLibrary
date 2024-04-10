@@ -28,3 +28,5 @@ global using static AdoNetHelpersLibrary.SqlHelpers.StatementFactoryConditionsSi
 global using static AdoNetHelpersLibrary.SqlHelpers.StatementSelectFactoryJoin;
 global using static AdoNetHelpersLibrary.SqlExtensions.DeleteSimple;
 global using static AdoNetHelpersLibrary.SqlExtensions.GetSimple;
+global using CommonBasicLibraries.DatabaseHelpers.SourceGeneratorHelpers;
+global using MappingCloningExtensions;

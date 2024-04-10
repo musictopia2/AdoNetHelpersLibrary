@@ -3,12 +3,12 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-	  <Version>8.0.13</Version>
+	  <Version>8.0.14</Version>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommonBasicLibraries" Version="8.0.25" />
+    <PackageReference Include="CommonBasicLibraries" Version="8.0.27" />
     <PackageReference Include="MappingCloningExtensions" Version="2.0.4" PrivateAssets="all" />
   </ItemGroup>
 

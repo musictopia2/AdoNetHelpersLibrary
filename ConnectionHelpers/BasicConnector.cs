@@ -1,4 +1,5 @@
-﻿namespace AdoNetHelpersLibrary.ConnectionHelpers;
+﻿
+namespace AdoNetHelpersLibrary.ConnectionHelpers;
 public class BasicConnector : IConnector
 {
     #region Main Functions
