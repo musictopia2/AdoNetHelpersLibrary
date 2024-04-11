@@ -58,6 +58,21 @@ public static class UpdateDatabase
         thisData.Parameters.Add(parameter);
         capture.Execute(thisData, thisTran, connectionTimeOut);
     }
+    public static async Task UpdateAsync<E>(this ICaptureCommandParameter capture, int id, BasicList<UpdateEntity> updateList, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
+        where E : class, ISimpleDatabaseEntity, ITableMapper<E>
+    {
+        var map = E.GetTableMap(); //try this way.
+        var (sqls, ParameterMappings) = GetUpdateStatement(updateList, map);
+        CompleteSqlData thisData = new();
+        thisData.SQLStatement = sqls;
+        PopulateSimple(ParameterMappings, thisData, EnumCategory.UseDatabaseMapping);
+        DynamicParameter parameter = new();
+        parameter.ParameterName = "@ID";
+        parameter.DbType = DbType.Int32; //hopefully good enough (?)
+        parameter.Value = id;
+        thisData.Parameters.Add(parameter);
+        await capture.ExecuteAsync(thisData, thisTran, connectionTimeOut);
+    }
     private static void PrivateUpdateEntity<E>(this ICaptureCommandParameter capture, E thisEntity, string sqls, BasicList<ColumnModel>? updateList, IDbTransaction? thisTran = null, int? connectionTimeOut = null) 
         where E : class, ISimpleDatabaseEntity
     {
