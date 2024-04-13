@@ -287,7 +287,7 @@ public static class GetSimple
         where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
     {
         EnumDatabaseCategory category = capture.Category;
-        string sqls = GetSimpleSelectStatement<E, D1, D2>(sortList, category, howMany);
+        string sqls = GetSimpleSelectStatement<E, D1, D2>(true, sortList, category, howMany);
         return await capture.QueryAsync<E, D1, D2, E>(sqls, (Main, Detail1, Detail2) => OneToOneAction(Main, Detail1, Detail2, action), null, thisTran, commandTimeout: connectionTimeOut);
     }
     private static BasicList<E> PrivateGetOneToOneItem<E, D1, D2>(this ICaptureCommandParameter capture, int id, Action<E, D1?, D2?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
@@ -297,7 +297,7 @@ public static class GetSimple
     {
         StringBuilder builder = new();
         EnumDatabaseCategory category = capture.Category;
-        builder.Append(GetSimpleSelectStatement<E, D1, D2>(null, category, 0));
+        builder.Append(GetSimpleSelectStatement<E, D1, D2>(true, null, category, 0));
         BasicList<DynamicParameter> parameters = GetDynamicIDData(ref builder, id, true);
         return capture.Query<E, D1, D2, E>(builder.ToString(), (Main, Detail1, Detail2) => OneToOneAction(Main, Detail1, Detail2, action), parameters, thisTran, commandTimeout: connectionTimeOut);
     }
@@ -307,7 +307,7 @@ public static class GetSimple
         where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
     {
         EnumDatabaseCategory category = capture.Category;
-        string sqls = GetSimpleSelectStatement<E, D1, D2>(sortList, category, howMany);
+        string sqls = GetSimpleSelectStatement<E, D1, D2>(true, sortList, category, howMany);
         return capture.Query<E, D1, D2, E>(sqls, (Main, Detail1, Detail2) => OneToOneAction(Main, Detail1, Detail2, action), null, thisTran, commandTimeout: connectionTimeOut);
     }
     private async static Task<BasicList<E>> PrivateGetOneToOneItemAsync<E, D1, D2>(this ICaptureCommandParameter capture, int id, Action<E, D1?, D2?>? action = null, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
@@ -317,7 +317,7 @@ public static class GetSimple
     {
         EnumDatabaseCategory category = capture.Category;
         StringBuilder builder = new();
-        builder.Append(GetSimpleSelectStatement<E, D1, D2>(null, category, 0));
+        builder.Append(GetSimpleSelectStatement<E, D1, D2>(true, null, category, 0));
         BasicList<DynamicParameter> parameters = GetDynamicIDData(ref builder, id, true);
         return await capture.QueryAsync<E, D1, D2, E>(builder.ToString(), (Main, Detail1, Detail2) => OneToOneAction(Main, Detail1, Detail2, action), null, thisTran, commandTimeout: connectionTimeOut);
     }
@@ -376,7 +376,7 @@ public static class GetSimple
         where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
     {
         EnumDatabaseCategory category = capture.Category;
-        string sqls = GetSimpleSelectStatement<E, D1, D2>(sortList, category, 0); //somehow the 3 table did not accept the other argument (?)
+        string sqls = GetSimpleSelectStatement<E, D1, D2>(false, sortList, category, 0); //somehow the 3 table did not accept the other argument (?)
         Dictionary<int, E> thisDict = [];
         var thisList = await capture.QueryAsync<E, D1, D2, E>(sqls, (Main, Detail1, Detail2) => GetOneToManyAction(Main, Detail1, Detail2, action, thisDict), null, thisTran, commandTimeout: connectionTimeOut);
         return thisList.Distinct().ToBasicList();
@@ -388,7 +388,7 @@ public static class GetSimple
     {
         EnumDatabaseCategory category = capture.Category;
         StringBuilder builder = new();
-        builder.Append(GetSimpleSelectStatement<E, D1, D2>(null, category, 0));
+        builder.Append(GetSimpleSelectStatement<E, D1, D2>(false, null, category, 0));
         BasicList<DynamicParameter> parameters = GetDynamicIDData(ref builder, id, true);
         Dictionary<int, E> thisDict = [];
         return capture.Query<E, D1, D2, E>(builder.ToString(), (Main, Detail1, Detail2) => GetOneToManyAction(Main, Detail1, Detail2, action, thisDict), parameters, thisTran, commandTimeout: connectionTimeOut).Distinct().ToBasicList();
@@ -399,7 +399,7 @@ public static class GetSimple
         where D2 : class, ISimpleDatabaseEntity, ITableMapper<D2>
     {
         EnumDatabaseCategory category = capture.Category;
-        string sqls = GetSimpleSelectStatement<E, D1, D2>(sortList, category, 0);
+        string sqls = GetSimpleSelectStatement<E, D1, D2>(false, sortList, category, 0);
         Dictionary<int, E> thisDict = [];
         return capture.Query<E, D1, D2, E>(sqls, (Main, Detail1, Detail2) => GetOneToManyAction(Main, Detail1, Detail2, action, thisDict), null, thisTran, commandTimeout: connectionTimeOut).Distinct().ToBasicList();
     }
@@ -410,7 +410,7 @@ public static class GetSimple
     {
         EnumDatabaseCategory category = capture.Category;
         StringBuilder builder = new();
-        builder.Append(GetSimpleSelectStatement<E, D1, D2>(null, category, 0));
+        builder.Append(GetSimpleSelectStatement<E, D1, D2>(false, null, category, 0));
         BasicList<DynamicParameter> parameters = GetDynamicIDData(ref builder, id, true);
         Dictionary<int, E> thisDict = [];
         var list = await capture.QueryAsync<E, D1, D2, E>(builder.ToString(), (Main, Detail1, Detail2) => GetOneToManyAction(Main, Detail1, Detail2, action, thisDict), parameters, thisTran, commandTimeout: connectionTimeOut);
