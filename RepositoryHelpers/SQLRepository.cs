@@ -35,6 +35,7 @@ public class SQLRepository<TEntity> : IRepositoryQueryAdvanced<TEntity>
             {
                 await DeleteAsync(entityToDelete, capture, trans);
             }
+            trans.Commit(); //forgot this.
         });
         return successful;
     }
@@ -56,6 +57,7 @@ public class SQLRepository<TEntity> : IRepositoryQueryAdvanced<TEntity>
             {
                 await DeleteAsync(key, capture, tran);
             }
+            tran.Commit();
         });
         return successful;
     }
@@ -194,6 +196,7 @@ public class SQLRepository<TEntity> : IRepositoryQueryAdvanced<TEntity>
         await _connector.DoWorkAsync(async (capture, trans) =>
         {
             list = await GetAsync(conditions, sortList, top, capture, trans);
+            trans.Commit(); //i think here too.
         });
         return list;
     }
