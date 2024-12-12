@@ -158,7 +158,7 @@ public class SQLRepository<TEntity> : IRepositoryQueryAdvanced<TEntity>
     {
         await _connector.DoWorkAsync(async (capture, tran) =>
         {
-            await capture.InsertSingleAsync(entity, tran);
+            await InsertAsync(capture, entity, tran);
             tran.Commit();
         });
         //easiest here too.
