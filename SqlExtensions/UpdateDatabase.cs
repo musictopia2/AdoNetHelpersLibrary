@@ -50,7 +50,8 @@ public static class UpdateDatabase
         var (sqls, ParameterMappings) = GetUpdateStatement(updateList, map);
         CompleteSqlData thisData = new();
         thisData.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, thisData, EnumCategory.UseDatabaseMapping);
+        var category = capture.Category;
+        PopulateSimple(ParameterMappings, thisData, EnumCategory.UseDatabaseMapping, category);
         DynamicParameter parameter = new();
         parameter.ParameterName = "@ID";
         parameter.DbType = DbType.Int32; //hopefully good enough (?)
@@ -65,7 +66,8 @@ public static class UpdateDatabase
         var (sqls, ParameterMappings) = GetUpdateStatement(updateList, map);
         CompleteSqlData thisData = new();
         thisData.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, thisData, EnumCategory.UseDatabaseMapping);
+        var category = capture.Category;
+        PopulateSimple(ParameterMappings, thisData, EnumCategory.UseDatabaseMapping, category);
         DynamicParameter parameter = new();
         parameter.ParameterName = "@ID";
         parameter.DbType = DbType.Int32; //hopefully good enough (?)
@@ -82,7 +84,8 @@ public static class UpdateDatabase
         }
         CompleteSqlData thisData = new();
         thisData.SQLStatement = sqls;
-        PopulateSimple(updateList!, thisData, EnumCategory.UseDatabaseMapping);
+        var category = capture.Category;
+        PopulateSimple(updateList!, thisData, EnumCategory.UseDatabaseMapping, category);
         DynamicParameter parameter = new();
         parameter.ParameterName = "@ID";
         parameter.DbType = DbType.Int32; //hopefully good enough (?)
@@ -99,7 +102,8 @@ public static class UpdateDatabase
         }
         CompleteSqlData thisData = new();
         thisData.SQLStatement = sqls;
-        PopulateSimple(updateList!, thisData, EnumCategory.UseDatabaseMapping);
+        var category = capture.Category;
+        PopulateSimple(updateList!, thisData, EnumCategory.UseDatabaseMapping, category);
         DynamicParameter parameter = new();
         parameter.ParameterName = "@ID";
         parameter.DbType = DbType.Int32; //hopefully good enough (?)

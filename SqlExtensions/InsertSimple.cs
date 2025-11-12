@@ -8,7 +8,7 @@ public static class InsertSimple
         isAutoIncremented = E.IsAutoIncremented;
         var map = E.GetTableMap(thisObj, isAutoIncremented);
         output.SQLStatement = GetInsertStatement(category, map, isAutoIncremented);
-        PopulateSimple(map.Columns, output, EnumCategory.UseDatabaseMapping);
+        PopulateSimple(map.Columns, output, EnumCategory.UseDatabaseMapping, category);
         return output;
     }
     public static int InsertSingle<E>(this ICaptureCommandParameter connector, E thisObject, IDbTransaction? thisTran = null, int? connectionTimeOut = null) 

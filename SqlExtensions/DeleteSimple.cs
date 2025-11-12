@@ -51,20 +51,22 @@ public static class DeleteSimple
         where E : class, ITableMapper<E>, ISimpleDatabaseEntity
     {
         var map = E.GetTableMap();
+        EnumDatabaseCategory database = capture.Category;
         var (sqls, ParameterMappings) = GetConditionalStatement(map.Columns, map.TableName, conditions, null, capture.Category, EnumSQLCategory.Delete);
         CompleteSqlData thisData = new();
         thisData.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
+        PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional, database);
         await capture.ExecuteAsync(thisData, thisTran, connectionTimeOut);
     }
     public static void Delete<E>(this ICaptureCommandParameter capture, BasicList<ICondition> conditions, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
         where E : class, ITableMapper<E>, ISimpleDatabaseEntity
     {
         var map = E.GetTableMap();
+        EnumDatabaseCategory database = capture.Category;
         var (sqls, ParameterMappings) = GetConditionalStatement(map.Columns, map.TableName, conditions, null, capture.Category, EnumSQLCategory.Delete);
         CompleteSqlData thisData = new();
         thisData.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
+        PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional, database);
         capture.Execute(thisData, thisTran, connectionTimeOut);
     }
 }

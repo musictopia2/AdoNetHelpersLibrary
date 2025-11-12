@@ -6,17 +6,24 @@ internal static class PopulateDynamics
         UseDatabaseMapping,
         Conditional
     }
-    public static void PopulateSimple(BasicList<ColumnModel> thisList, CompleteSqlData output, EnumCategory category)
+    public static void PopulateSimple(BasicList<ColumnModel> thisList, CompleteSqlData output, EnumCategory category, EnumDatabaseCategory database)
     {
         thisList.ForEach(item =>
         {
             DynamicParameter parameter;
             parameter = new();
-            parameter.DbType = item.ColumnType;
+            if (database == EnumDatabaseCategory.SQLite && item.Value is DateOnly)
+            {
+                parameter.DbType = DbType.String; //hopefully does not break something else.
+            }
+            else
+            {
+                parameter.DbType = item.ColumnType;
+            }
             if (category == EnumCategory.UseDatabaseMapping)
             {
                 parameter.ParameterName = $"@{item.ColumnName}";
-                parameter.Value = item.Value;
+                parameter.Value = NormalizeParameterValue(item.Value, database);
             }
             else
             {
@@ -33,6 +40,27 @@ internal static class PopulateDynamics
             output.Parameters.Add(parameter);
         });
     }
+
+    private static object? NormalizeParameterValue(object? value, EnumDatabaseCategory category)
+    {
+        if (category == EnumDatabaseCategory.SQLServer)
+        {
+            return value;
+        }
+        if (value == null)
+        {
+            return DBNull.Value;
+        }
+
+        return value switch
+        {
+            DateOnly d => d.ToString(),
+            TimeOnly t => t.ToString(),
+            _ => value
+        };
+    }
+
+
     public static BasicList<DynamicParameter> GetDynamicIDData(ref StringBuilder builder, int ID, bool isJoined = false)
     {
         BasicList<DynamicParameter> output = [];

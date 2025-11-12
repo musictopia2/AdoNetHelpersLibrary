@@ -9,7 +9,7 @@ public static class CountAndExist
         var (sqls, ParameterMappings) = GetConditionalStatement(map.Columns, map.TableName, conditions, null, database, EnumSQLCategory.Count);
         CompleteSqlData thisData = new();
         thisData.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
+        PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional, database);
         return capture.ExecuteScalar<int>(thisData, thisTran, connectionTimeOut);
     }
     public static int Count<E>(this ICaptureCommandParameter capture, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
@@ -28,7 +28,7 @@ public static class CountAndExist
         var (sqls, ParameterMappings) = GetConditionalStatement(map.Columns, map.TableName, conditions, null, database, EnumSQLCategory.Bool);
         CompleteSqlData thisData = new();
         thisData.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
+        PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional, database);
         return capture.Exists(thisData, thisTran, connectionTimeOut);
     }
     public static bool Exists<E>(this ICaptureCommandParameter capture, int id, IDbTransaction? thisTran = null, int? connectionTimeOut = null)

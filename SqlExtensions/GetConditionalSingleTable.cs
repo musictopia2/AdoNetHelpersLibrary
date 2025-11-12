@@ -19,7 +19,7 @@ public static class GetConditionalSingleTable
         var (sqls, ParameterMappings) = GetConditionalStatement(map.Columns, map.TableName, Conditions, sortList, database, howMany: howMany);
         CompleteSqlData thisData = new();
         thisData.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
+        PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional, database);
         return capture.Query<E>(thisData.SQLStatement, thisData.Parameters, thisTran, commandTimeout: connectionTimeOut, CommandType.Text);
     }
     private async static Task<BasicList<E>> PrivateSimpleSelectConditionalAsync<E>(this ICaptureCommandParameter capture, BasicList<ICondition> conditions, BasicList<SortInfo>? sortList = null, int howMany = 0, IDbTransaction? thisTran = null, int? connectionTimeOut = null)
@@ -30,7 +30,7 @@ public static class GetConditionalSingleTable
         var (sqls, ParameterMappings) = GetConditionalStatement(map.Columns, map.TableName, conditions, sortList, database, howMany: howMany);
         CompleteSqlData thisData = new();
         thisData.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
+        PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional, database);
         return await capture.QueryAsync<E>(thisData.SQLStatement, thisData.Parameters, thisTran, commandTimeout: connectionTimeOut, CommandType.Text);
     }
 }

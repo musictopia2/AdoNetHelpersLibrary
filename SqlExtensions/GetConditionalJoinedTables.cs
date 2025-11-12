@@ -16,7 +16,7 @@ public static class GetConditionalJoinedTables
         var (sqls, ParameterMappings) = GetConditionalStatement<E, D1>(conditionList, sortList, false, category, 0);
         CompleteSqlData data = new();
         data.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional);
+        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional, category);
         Dictionary<int, E> thisDict = [];
         var thisList = await capture.QueryAsync<E, D1, E>(sqls, (Main, Detail) => GetOneToManyAction(Main, Detail, action, thisDict), data.Parameters, thisTran, commandTimeout: connectionTimeOut);
         return thisList.Distinct().ToBasicList();
@@ -29,7 +29,7 @@ public static class GetConditionalJoinedTables
         var (sqls, ParameterMappings) = GetConditionalStatement<E, D1>(ConditionList, sortList, false, category, 0);
         CompleteSqlData data = new();
         data.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional);
+        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional, category);
         Dictionary<int, E> thisDict = [];
         return capture.Query<E, D1, E>(sqls, (Main, Detail) => GetOneToManyAction(Main, Detail, action, thisDict), data.Parameters, thisTran, commandTimeout: connectionTimeOut).Distinct().ToBasicList();
     }
@@ -49,7 +49,7 @@ public static class GetConditionalJoinedTables
         var (sqls, ParameterMappings) = GetConditionalStatement<E, D1>(conditionList, sortList, true, category, HowMany);
         CompleteSqlData data = new();
         data.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional);
+        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional, category);
         return await capture.QueryAsync<E, D1, E>(sqls, (Main, Detail) => OneToOneAction(Main, Detail, action), data.Parameters, thisTran, commandTimeout: connectionTimeOut);
     }
     private static BasicList<E> PrivateOneToOneSelectConditional<E, D1>(this ICaptureCommandParameter capture, BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList = null, int HowMany = 0, Action<E, D1?>? action = null, IDbTransaction? thisTran = null, int? ConnectionTimeOut = null)
@@ -60,7 +60,7 @@ public static class GetConditionalJoinedTables
         var (sqls, ParameterMappings) = GetConditionalStatement<E, D1>(conditionList, sortList, true, category, HowMany);
         CompleteSqlData data = new();
         data.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional);
+        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional, category);
         return capture.Query<E, D1, E>(sqls, (Main, Detail) => OneToOneAction(Main, Detail, action), data.Parameters, thisTran, commandTimeout: ConnectionTimeOut);
     }
     #endregion
@@ -81,7 +81,7 @@ public static class GetConditionalJoinedTables
         var (sqls, ParameterMappings) = GetConditionalStatement<E, D1, D2>(conditionList, sortList, category, howMany);
         CompleteSqlData data = new();
         data.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional);
+        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional, category);
         return await capture.QueryAsync<E, D1, D2, E>(sqls, (Main, Detail1, Detail2) => OneToOneAction(Main, Detail1, Detail2, action), data.Parameters, thisTran, commandTimeout: connectionTimeOut);
     }
     private static BasicList<E> PrivateOneToOneSelectConditional<E, D1, D2>(this ICaptureCommandParameter capture, BasicList<ICondition> conditionList, BasicList<SortInfo>? sortList = null, int howMany = 0, Action<E, D1?, D2?>? action = null, IDbTransaction? thisTran = null, int? ConnectionTimeOut = null)
@@ -93,7 +93,7 @@ public static class GetConditionalJoinedTables
         var (sqls, ParameterMappings) = GetConditionalStatement<E, D1, D2>(conditionList, sortList, category, howMany);
         CompleteSqlData data = new();
         data.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional);
+        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional, category);
         return capture.Query<E, D1, D2, E>(sqls, (Main, Detail1, Detail2) => OneToOneAction(Main, Detail1, Detail2, action), data.Parameters, thisTran, commandTimeout: ConnectionTimeOut);
     }
     #endregion
@@ -115,7 +115,7 @@ public static class GetConditionalJoinedTables
         //var (sqls, ParameterMappings) = GetConditionalStatement<E, D1, D2>(conditionList, sortList, false, category, 0);
         CompleteSqlData data = new();
         data.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional);
+        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional, category);
         Dictionary<int, E> thisDict = [];
         var thisList = await capture.QueryAsync<E, D1, D2, E>(sqls, (Main, Detail1, Detail2) => GetOneToManyAction(Main, Detail1, Detail2, action, thisDict), data.Parameters, thisTran, commandTimeout: connectionTimeOut);
         return thisList.Distinct().ToBasicList();
@@ -129,7 +129,7 @@ public static class GetConditionalJoinedTables
         var (sqls, ParameterMappings) = GetConditionalStatement<E, D1, D2>(conditionList, sortList, category, 0, false);
         CompleteSqlData data = new();
         data.SQLStatement = sqls;
-        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional);
+        PopulateSimple(ParameterMappings, data, EnumCategory.Conditional, category);
         Dictionary<int, E> thisDict = [];
         return capture.Query<E, D1, D2, E>(sqls, (Main, Detail1, Detail2) => GetOneToManyAction(Main, Detail1, Detail2, action, thisDict), data.Parameters, thisTran, commandTimeout: connectionTimeOut).Distinct().ToBasicList();
     }

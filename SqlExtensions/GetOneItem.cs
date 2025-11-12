@@ -11,7 +11,7 @@ public static class GetOneItem
         thisData.SQLStatement = sqls;
         if (conditions != null)
         {
-            PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
+            PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional, database);
         }
         return capture.ExecuteScalar<E, R>(thisData, thisTran, connectionTimeOut)!;
     }
@@ -25,7 +25,7 @@ public static class GetOneItem
         thisData.SQLStatement = sqls;
         if (conditions != null)
         {
-            PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
+            PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional, database);
         }
         var output = await capture.ExecuteScalarAsync<E, R>(thisData, thisTran!, connectionTimeOut)!;
         if (output != null)
@@ -44,7 +44,7 @@ public static class GetOneItem
         thisData.SQLStatement = sqls;
         if (conditions != null)
         {
-            PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
+            PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional, database);
         }
         return capture.Query<E, R>(thisData.SQLStatement, thisData.Parameters, thisTran, connectionTimeOut, CommandType.Text);
     }
@@ -58,7 +58,7 @@ public static class GetOneItem
         thisData.SQLStatement = sqls;
         if (Conditions != null)
         {
-            PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional);
+            PopulateSimple(ParameterMappings, thisData, EnumCategory.Conditional, database);
         }
         return await capture.QueryAsync<E, R>(thisData.SQLStatement, thisData.Parameters, thisTran, commandTimeout: connectionTimeOut, CommandType.Text);
     }

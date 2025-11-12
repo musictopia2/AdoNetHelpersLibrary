@@ -6,7 +6,7 @@ public static class BulkInsertDelete
     {
         CompleteSqlData output = new();
         output.SQLStatement = GetInsertStatement(category, map, isAutoIncremented);
-        PopulateSimple(map.Columns, output, EnumCategory.UseDatabaseMapping);
+        PopulateSimple(map.Columns, output, EnumCategory.UseDatabaseMapping, category);
         return output;
     }
     private static CompleteSqlData GetDapperInsert<E>(EnumDatabaseCategory category, E thisObj)
