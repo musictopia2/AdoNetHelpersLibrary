@@ -1,42 +1,45 @@
 ﻿namespace AdoNetHelpersLibrary.ExecutionHelpers;
 internal static class MiscExtensions
 {
-    private static void SetDatabaseParameters(this ICaptureCommandParameter capture, IDbCommand command, BasicList<DynamicParameter>? parameters)
+    extension (ICaptureCommandParameter capture)
     {
-        if (parameters is null)
+        private void SetDatabaseParameters(IDbCommand command, BasicList<DynamicParameter>? parameters)
         {
-            return;
-        }
-        foreach (var item in parameters)
-        {
-            DbParameter parameter = capture.GetParameter();
-            parameter.ParameterName = item.ParameterName;
-            parameter.DbType = item.DbType;
-            parameter.Precision = item.Precision;
-            parameter.SourceColumnNullMapping = item.SourceColumnNullMapping;
-            if (item.Value is null)
+            if (parameters is null)
             {
-                parameter.Value = DBNull.Value;
+                return;
             }
-            else
+            foreach (var item in parameters)
             {
-                parameter.Value = item.Value;
+                DbParameter parameter = capture.GetParameter();
+                parameter.ParameterName = item.ParameterName;
+                parameter.DbType = item.DbType;
+                parameter.Precision = item.Precision;
+                parameter.SourceColumnNullMapping = item.SourceColumnNullMapping;
+                if (item.Value is null)
+                {
+                    parameter.Value = DBNull.Value;
+                }
+                else
+                {
+                    parameter.Value = item.Value;
+                }
+                command.Parameters.Add(parameter);
             }
-            command.Parameters.Add(parameter);
         }
-    }
-    public static IDbCommand GetCommand(this ICaptureCommandParameter capture, CommandDefinition command)
-    {
-        IDbCommand fins = capture.GetCommand();
-        fins.Connection = capture.CurrentConnection;
-        fins.CommandText = command.CommandText;
-        if (command.CommandTimeout is not null)
+        public IDbCommand GetCommand(CommandDefinition command)
         {
-            fins.CommandTimeout = command.CommandTimeout.Value;
+            IDbCommand fins = capture.GetCommand();
+            fins.Connection = capture.CurrentConnection;
+            fins.CommandText = command.CommandText;
+            if (command.CommandTimeout is not null)
+            {
+                fins.CommandTimeout = command.CommandTimeout.Value;
+            }
+            fins.CommandType = command.CommandType;
+            fins.Transaction = command.Transaction;
+            capture.SetDatabaseParameters(fins, command.Parameters);
+            return fins;
         }
-        fins.CommandType = command.CommandType;
-        fins.Transaction = command.Transaction;
-        capture.SetDatabaseParameters(fins, command.Parameters);
-        return fins;
     }
 }
