@@ -19,6 +19,16 @@ public class DocumentConnector : IConnector
         set => _connectionString = value;
     }
     private string _connectionString = "";
+    private static string RewriteSqlitePathRoot(string originalPath, string newRoot)
+    {
+        // Keep only the file name (and optional subfolders if you want later)
+        string fileName = Path.GetFileName(originalPath);
+        if (string.IsNullOrWhiteSpace(fileName))
+            return originalPath;
+
+        // Ensure newRoot exists as a folder path
+        return Path.Combine(newRoot, fileName);
+    }
     public DocumentConnector(string databaseName, string collectionName, string proposedPath)
     {
         if (Configuration is null)
@@ -26,6 +36,11 @@ public class DocumentConnector : IConnector
             throw new CustomBasicException("No configuration was registered for document connector");
         }
         var config = Configuration;
+        string? sqliteRootOverride = config.GetValue<string>("DocumentDatabaseSqliteRootOverride"); //this would allow me to have a situation where there are several databases but one path.  very common with document style databases.
+        if (string.IsNullOrWhiteSpace(sqliteRootOverride) == false && string.IsNullOrWhiteSpace(proposedPath) == false)
+        {
+            proposedPath = RewriteSqlitePathRoot(proposedPath, sqliteRootOverride);
+        }
         string key = $"DocumentDatabaseSQLServer-{databaseName}-{collectionName}";
         string? possibility = config.GetConnectionString(key);
         key = $"DocumentDatabaseSqlite-{databaseName}-{collectionName}";
